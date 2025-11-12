@@ -6,6 +6,14 @@ import UpdatePlayerForm from "../components/UpdatePlayerForm.jsx";
 function ViewPlayersPage({ backendURL }) {
     const [players, setPlayers] = useState([]);
 
+    const columnAliases = {
+        playerID: "Player ID",
+        fName: "First Name",
+        lName: "Last Name",
+        position: "Position",
+        salary: "Salary"
+    };
+
     const getData = async () => {
         try {
             const response = await fetch(`${backendURL}/view-players`);
@@ -17,7 +25,6 @@ function ViewPlayersPage({ backendURL }) {
         }
     };
 
-    // Load table on page load
     useEffect(() => {
         getData();
     }, []);
@@ -31,7 +38,8 @@ function ViewPlayersPage({ backendURL }) {
                 <thead>
                     <tr>
                         {players.length > 0 && Object.keys(players[0]).map((header, index) => (
-                            <th key={index}>{header}</th>
+                            <th key={index}>
+                                {columnAliases[header] || header}</th>
                         ))}
                         <th></th>
                     </tr>

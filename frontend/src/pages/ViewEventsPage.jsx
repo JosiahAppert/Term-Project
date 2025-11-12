@@ -6,6 +6,12 @@ import UpdateEventForm from "../components/UpdateEventForm.jsx";
 function ViewEventsPage({ backendURL }) {
     const [events, setEvents] = useState([]);
 
+    const columnAliases = {
+        eventID: "Event ID",
+        visitingTeam: "Visiting Team",
+        eventStart: "Event Start"
+    };
+
     const getData = async () => {
         try {
             const response = await fetch(`${backendURL}/view-events`);
@@ -17,8 +23,6 @@ function ViewEventsPage({ backendURL }) {
         }
     };
 
-
-    // Load table on page load
     useEffect(() => {
         getData();
     }, []);
@@ -32,7 +36,9 @@ function ViewEventsPage({ backendURL }) {
                 <thead>
                     <tr>
                         {events.length > 0 && Object.keys(events[0]).map((header, index) => (
-                            <th key={index}>{header}</th>
+                            <th key={index}>
+                                {columnAliases[header] || header}
+                            </th>
                         ))}
                         <th></th>
                     </tr>

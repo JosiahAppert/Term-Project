@@ -6,6 +6,14 @@ import UpdateTicketHolderForm from "../components/UpdateTicketHolderForm.jsx";
 function ViewTicketHoldersPage({ backendURL }) {
     const [ticketHolders, setTicketHolders] = useState([]);
 
+    const columnAliases = {
+        ticketHolderID: "Ticket Holder ID",
+        fName: "First Name",
+        lName: "Last Name",
+        email: "Email",
+        phone: "Phone Number"
+    };
+
     const getData = async () => {
         try {
             const response = await fetch(`${backendURL}/view-ticket-holders`);
@@ -31,7 +39,8 @@ function ViewTicketHoldersPage({ backendURL }) {
                 <thead>
                     <tr>
                         {ticketHolders.length > 0 && Object.keys(ticketHolders[0]).map((header, index) => (
-                            <th key={index}>{header}</th>
+                            <th key={index}>
+                                {columnAliases[header] || header}</th>
                         ))}
                         <th></th>
                     </tr>

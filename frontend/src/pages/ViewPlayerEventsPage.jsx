@@ -8,6 +8,17 @@ function ViewPlayerEventsPage({ backendURL }) {
     const [events, setEvents] = useState([]);
     const [players, setPlayers] = useState([]);
 
+    const columnAliases = {
+        eventID: "Event ID",
+        playerID: "Player ID",
+        inningsPlayed: "Innings Played",
+        salaryPaid: "Salary Paid",
+        fName: "First Name",
+        lName: "Last Name",
+        teamName: "Team Name",
+        eventStart: "Event Start"
+    };
+
     const getData = async () => {
         try {
             const [playerEventsRes, eventsRes, playersRes] = await Promise.all([
@@ -20,17 +31,14 @@ function ViewPlayerEventsPage({ backendURL }) {
             const eventsData = await eventsRes.json();
             const playersData = await playersRes.json();
 
-            // handle either { playerEvents: [...] } or raw array shape
             setPlayerEvents(playerEventsData.playerEvents || playerEventsData);
             setEvents(eventsData.events || eventsData);
             setPlayers(playersData.players || playersData);
-
         } catch (error) {
             console.error("Error fetching data:", error);
         }
     };
 
-    // Load data when page mounts
     useEffect(() => {
         getData();
     }, []);
@@ -44,7 +52,9 @@ function ViewPlayerEventsPage({ backendURL }) {
                     <tr>
                         {playerEvents.length > 0 &&
                             Object.keys(playerEvents[0]).map((header, index) => (
-                                <th key={index}>{header}</th>
+                                <th key={index}>
+                                    {columnAliases[header] || header}
+                                </th>
                             ))}
                         <th></th>
                     </tr>

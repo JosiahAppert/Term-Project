@@ -8,6 +8,17 @@ function ViewTicketsPage({ backendURL }) {
     const [events, setEvents] = useState([]);
     const [ticketHolders, setTicketHolders] = useState([]);
 
+    const columnAliases = {
+        ticketID: "Ticket ID",
+        eventID: "Event ID",
+        visitingTeam: "Visiting Team",
+        price: "Price",
+        ticketHolderID: "Ticket Holder ID",
+        fName: "First Name",
+        lName: "Last Name",
+        seatNumber: "Seat Number"
+    };
+
     const getData = async () => {
         try {
             const [ticketEventsRes, eventsRes, ticketHoldersRes] = await Promise.all([
@@ -44,7 +55,8 @@ function ViewTicketsPage({ backendURL }) {
                     <tr>
                         {ticketEvents.length > 0 &&
                             Object.keys(ticketEvents[0]).map((header, index) => (
-                                <th key={index}>{header}</th>
+                                <th key={index}>
+                                    {columnAliases[header] || header}</th>
                             ))}
                         <th></th>
                     </tr>
