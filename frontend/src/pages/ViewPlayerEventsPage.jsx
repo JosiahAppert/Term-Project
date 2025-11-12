@@ -80,6 +80,7 @@ function ViewPlayerEventsPage({ backendURL }) {
             />
 
             <UpdatePlayerEventForm
+                playerEvents={playerEvents}
                 events={events}
                 players={players}
                 backendURL={backendURL}

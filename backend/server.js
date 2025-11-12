@@ -77,9 +77,9 @@ app.get('/view-ticket-events', async (req, res) => {
                         FROM Tickets t
                         JOIN Events e ON t.eventID = e.eventID
                         JOIN TicketHolders th ON t.ticketHolderID = th.ticketHolderID;`;
-        const [ticketEvents] = await db.query(query5);
+        const [tickets] = await db.query(query5);
 
-        res.status(200).json({ ticketEvents });  // Send the results to the frontend
+        res.status(200).json({ tickets });  // Send the results to the frontend
 
     } catch (error) {
         console.error("Database error:", error);

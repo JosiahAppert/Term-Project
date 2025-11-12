@@ -4,7 +4,7 @@ import CreateTicketForm from "../components/CreateTicketForm.jsx";
 import UpdateTicketForm from "../components/UpdateTicketForm.jsx";
 
 function ViewTicketsPage({ backendURL }) {
-    const [ticketEvents, setTicketEvents] = useState([]);
+    const [tickets, setTickets] = useState([]);
     const [events, setEvents] = useState([]);
     const [ticketHolders, setTicketHolders] = useState([]);
 
@@ -21,18 +21,17 @@ function ViewTicketsPage({ backendURL }) {
 
     const getData = async () => {
         try {
-            const [ticketEventsRes, eventsRes, ticketHoldersRes] = await Promise.all([
+            const [ticketsRes, eventsRes, ticketHoldersRes] = await Promise.all([
                 fetch(`${backendURL}/view-ticket-events`),
                 fetch(`${backendURL}/view-events`),
                 fetch(`${backendURL}/view-ticket-holders`)
             ]);
 
-            const ticketEventsData = await ticketEventsRes.json();
+            const ticketsData = await ticketsRes.json();
             const eventsData = await eventsRes.json();
             const ticketHoldersData = await ticketHoldersRes.json();
 
-            // handle either { ticketEvents: [...] } or raw array shape
-            setTicketEvents(ticketEventsData.ticketEvents || ticketEventsData);
+            setTickets(ticketsData.tickets || ticketsData);
             setEvents(eventsData.events || eventsData);
             setTicketHolders(ticketHoldersData.ticketHolders || ticketHoldersData);
 
@@ -41,7 +40,6 @@ function ViewTicketsPage({ backendURL }) {
         }
     };
 
-    // Load data when page mounts
     useEffect(() => {
         getData();
     }, []);
@@ -53,8 +51,8 @@ function ViewTicketsPage({ backendURL }) {
             <table>
                 <thead>
                     <tr>
-                        {ticketEvents.length > 0 &&
-                            Object.keys(ticketEvents[0]).map((header, index) => (
+                        {tickets.length > 0 &&
+                            Object.keys(tickets[0]).map((header, index) => (
                                 <th key={index}>
                                     {columnAliases[header] || header}</th>
                             ))}
@@ -63,10 +61,10 @@ function ViewTicketsPage({ backendURL }) {
                 </thead>
 
                 <tbody>
-                    {ticketEvents.map((ticketEvent, index) => (
+                    {tickets.map((ticket, index) => (
                         <TicketRow
                             key={index}
-                            rowObject={ticketEvent}
+                            rowObject={ticket}
                             backendURL={backendURL}
                             refreshTicket={getData}
                         />
@@ -82,6 +80,7 @@ function ViewTicketsPage({ backendURL }) {
             />
 
             <UpdateTicketForm
+                tickets={tickets}
                 events={events}
                 ticketHolders={ticketHolders}
                 backendURL={backendURL}
