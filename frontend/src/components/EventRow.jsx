@@ -1,4 +1,5 @@
-import DeleteEventForm from "./DeleteEventForm";
+import '../App.css';
+
 
 const EventRow = ({ rowObject, backendURL, refreshEvent }) => {
     return (
@@ -7,7 +8,6 @@ const EventRow = ({ rowObject, backendURL, refreshEvent }) => {
                 <td key={index}>{value}</td>
             ))}
             
-            <DeleteEventForm rowObject={rowObject} backendURL={backendURL} refreshEvent={refreshEvent} />
         </tr>
     );
 };
