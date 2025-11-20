@@ -57,36 +57,29 @@ app.get('/view-events', async (req, res) => {
 });
 
 // UPDATE ROUTES
-app.post('/events/update', async function (req, res) {
+app.put('/events/update/:id', async function (req, res) {
     try {
-        // Parse frontend form information
-        const data = req.body;
+        const eventID = req.params.id;
+        const { visitingTeam, eventStart } = req.body;
 
-        // Create and execute our query
-        // Using parameterized queries (Prevents SQL injection attacks)
         const query1 = 'CALL sp_UpdateEvent(?, ?, ?);';
         const query2 = 'SELECT eventID, visitingTeam, eventStart FROM Events WHERE eventID = ?;';
-        await db.query(query1, [
-            data.update_eventID,
-            data.update_visitingTeam,
-            data.update_eventStart,
-        ]);
-        const [[rows]] = await db.query(query2, [data.update_eventID]);
 
-        console.log(`UPDATE Events. ID: ${data.update_eventID} ` +
-            `Visiting Team: ${rows.visitingTeam} ` + `Event Start: ${rows.eventStart}`
+        await db.query(query1, [eventID, visitingTeam, eventStart]);
+
+        const [[rows]] = await db.query(query2, [eventID]);
+
+        console.log(
+            `UPDATE Events. ID: ${eventID} Visiting Team: ${rows.visitingTeam} Event Start: ${rows.eventStart}`
         );
 
-        // Send success status to frontend
         res.status(200).json({ message: 'Event updated successfully' });
     } catch (error) {
         console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            'An error occurred while executing the database queries.'
-        );
+        res.status(500).send('An error occurred while executing the database queries.');
     }
 });
+
 
 app.get('/view-players', async (req, res) => {
     try {

@@ -7,14 +7,23 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
     const editEvent = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(backendURL + '/events/update', {
-                method: 'POST',
+            const response = await fetch(`${backendURL}/events/update/${eventToEdit.eventID}`, {
+                method: 'PUT', // or 'POST' if your backend expects that
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: eventToEdit.eventID,
+                    visitingTeam,
+                    eventStart,
+                }),
             });
 
             if (response.ok) {
                 console.log("Event updated successfully.");
             } else {
-                console.error("Error updating event.");
+                const errorData = await response.json();
+                console.error("Error updating event:", errorData);
             }
         } catch (error) {
             console.error('Error during form submission:', error);
@@ -24,23 +33,22 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
     return (
         <div>
             <h2>Edit Event</h2>
-            <div>
+            <form onSubmit={editEvent}>
                 <input
                     type="text"
                     value={visitingTeam}
-                    onChange={e => setVisitingTeam(e.target.value)} />
+                    data-icloud-keychain="ignore"
+                    onChange={e => setVisitingTeam(e.target.value)}
+                />
                 <input
                     type="datetime-local"
                     value={eventStart}
-                    onChange={e => setEventStart(e.target.value)} />
-            </div>
-            <div>
-                <button
-                    onClick={editEvent}
-                >Update</button>
-            </div>
+                    onChange={e => setEventStart(e.target.value)}
+                />
+                <button type="submit">Update</button>
+            </form>
         </div>
     );
-}
+};
 
 export default EditEventsPage;
