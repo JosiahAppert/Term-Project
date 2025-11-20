@@ -1,27 +1,24 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export const EditEventsPage = ({ backendURL, eventToEdit }) => {
     const [visitingTeam, setVisitingTeam] = useState(eventToEdit.visitingTeam);
     const [eventStart, setEventStart] = useState(eventToEdit.eventStart);
 
-    const navigate = useNavigate();
+    const editEvent = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(backendURL + '/events/update', {
+                method: 'POST',
+            });
 
-    const editEvent = async () => {
-        const editedEvent = {visitingTeam, eventStart};
-        const response = await fetch(
-            `${backendURL}/events/${eventToEdit._id}`, {
-                method: 'PUT',
-                headers: {'Content-type': 'application/json'},
-                body: JSON.stringify(editedEvent)
+            if (response.ok) {
+                console.log("Event updated successfully.");
+            } else {
+                console.error("Error updating event.");
             }
-        );
-        if(response.status === 200){
-            alert("Successfully edited the event");
-        } else{
-            alert("Failed to edit the event, status code = " + response.status)
+        } catch (error) {
+            console.error('Error during form submission:', error);
         }
-        navigate('/');
     };
 
     return (

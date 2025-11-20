@@ -30,7 +30,7 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
 
     const onEdit = async eventToEdit => {
         setEventToEdit(eventToEdit);
-        navigate("/edit-event");
+        navigate("/events/update");
     };
 
     const onDelete = async eventID => {

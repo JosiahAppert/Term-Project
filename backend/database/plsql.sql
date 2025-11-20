@@ -115,3 +115,16 @@ DELIMITER ;
 -- Use the following statement to call SP to load the movies database.
 -- This will reset the schema back to the original state.
 -- CALL sp_load_teamdb();
+
+-- #############################
+-- UPDATE Events
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateEvent(IN e_eventID INT, IN e_visitingTeam VARCHAR(50), IN e_eventStart DATETIME)
+
+BEGIN
+    UPDATE Events SET visitingTeam = e_visitingTeam, eventStart = e_eventStart WHERE eventID = e_eventID; 
+END //
+DELIMITER ;

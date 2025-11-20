@@ -56,7 +56,7 @@ function App() {
             <Route path="/" element={<HomePage backendURL={backendURL} />} />
             <Route path="/reset-db" element={<ResetDBForm backendURL={backendURL} />} />
             <Route path="/view-events" element={<ViewEventsPage backendURL={backendURL} setEventToEdit={setEventToEdit} />} />
-            <Route path="/edit-event" element={<EditEventsPage backendURL={backendURL} eventToEdit={eventToEdit} />} />
+            <Route path="/events/update" element={<EditEventsPage backendURL={backendURL} eventToEdit={eventToEdit} />} />
             <Route path="/view-players" element={<ViewPlayersPage backendURL={backendURL} />} />
             <Route path="/view-player-events" element={<ViewPlayerEventsPage backendURL={backendURL} />} />
             <Route path="/view-tickets" element={<ViewTicketsPage backendURL={backendURL} />} />
