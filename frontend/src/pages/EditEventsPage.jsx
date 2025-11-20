@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const EditEventsPage = ({ backendURL, eventToEdit }) => {
     const [visitingTeam, setVisitingTeam] = useState(eventToEdit.visitingTeam);
     const [eventStart, setEventStart] = useState(eventToEdit.eventStart);
+
+    const navigate = useNavigate();
 
     const editEvent = async (e) => {
         e.preventDefault();
@@ -21,13 +24,16 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
 
             if (response.ok) {
                 console.log("Event updated successfully.");
+                alert("Event updated successfully.");
             } else {
                 const errorData = await response.json();
                 console.error("Error updating event:", errorData);
+                alert("Error updating event:", errorData);
             }
         } catch (error) {
             console.error('Error during form submission:', error);
         }
+        navigate('/view-events');
     };
 
     return (
@@ -36,8 +42,9 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
             <form onSubmit={editEvent}>
                 <input
                     type="text"
+                    autoComplete="off"
+                    data-form-type="other"
                     value={visitingTeam}
-                    data-icloud-keychain="ignore"
                     onChange={e => setVisitingTeam(e.target.value)}
                 />
                 <input

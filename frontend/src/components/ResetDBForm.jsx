@@ -9,8 +9,10 @@ const ResetDBForm = ({ backendURL }) => {
 
             if (response.ok) {
                 console.log("Database reset successfully.");
+                alert("Database reset successfully.");
             } else {
                 console.error("Error resetting database.");
+                alert("Error resetting database.");
             }
         } catch (error) {
             console.error('Error during form submission:', error);
