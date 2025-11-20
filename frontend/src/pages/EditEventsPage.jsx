@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const EditEventsPage = ({ eventToEdit }) => {
+export const EditEventsPage = ({ backendURL, eventToEdit }) => {
     const [visitingTeam, setVisitingTeam] = useState(eventToEdit.visitingTeam);
     const [eventStart, setEventStart] = useState(eventToEdit.eventStart);
 
@@ -10,7 +10,7 @@ export const EditEventsPage = ({ eventToEdit }) => {
     const editEvent = async () => {
         const editedEvent = {visitingTeam, eventStart};
         const response = await fetch(
-            `/events/${eventToEdit._id}`, {
+            `${backendURL}/events/${eventToEdit._id}`, {
                 method: 'PUT',
                 headers: {'Content-type': 'application/json'},
                 body: JSON.stringify(editedEvent)

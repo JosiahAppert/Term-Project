@@ -21,6 +21,25 @@ const PORT = process.env.PORT || 1986;
 
 app.get('/', (req, res) => res.json({ message: 'Backend is running!' }));
 
+// Reset database by calling stored procedure sp_load_teamdb()
+app.post('/reset-db', async function (req, res) {
+    try {
+        const query = `CALL sp_load_teamdb();`;
+
+        const result = await db.query(query);
+        console.log('Executed:', query);
+        console.log('DB response:', result);
+
+        return res.status(200).json({ message: 'Database reset successfully' });
+    } catch (error) {
+        console.error('Error executing stored procedure:', error);
+
+        return res.status(500).json({
+            error: 'An error occurred while resetting the database.'
+        });
+    }
+});
+
 // READ ROUTES
 app.get('/view-events', async (req, res) => {
     try {
@@ -35,6 +54,19 @@ app.get('/view-events', async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
     
+});
+
+app.put('/events/:id', async (req, res) => {
+    const eventID = req.params.id;
+    const { visitingTeam, eventStart } = req.body;
+    try {
+        const updateQuery = `UPDATE Events SET visitingTeam = ?, eventStart = ? WHERE eventID = ?;`;
+        const [result] = await db.query(updateQuery, [visitingTeam, eventStart, eventID]);
+        res.status(200).json({ message: "Event updated successfully" });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
 });
 
 app.get('/view-players', async (req, res) => {

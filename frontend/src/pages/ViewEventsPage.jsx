@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import EventRow from "../components/EventRow.jsx";
 import CreateEventForm from "../components/CreateEventForm.jsx";
-import UpdateEventForm from "../components/UpdateEventForm.jsx";
 
-function ViewEventsPage({ backendURL }) {
+function ViewEventsPage({ backendURL, setEventToEdit }) {
     const [events, setEvents] = useState([]);
+    const navigate = useNavigate();
 
     const columnAliases = {
         eventID: "Event ID",
@@ -27,6 +28,21 @@ function ViewEventsPage({ backendURL }) {
         getData();
     }, []);
 
+    const onEdit = async eventToEdit => {
+        setEventToEdit(eventToEdit);
+        navigate("/edit-event");
+    };
+
+    const onDelete = async eventID => {
+        const response = await fetch(`/events/${eventID}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            const getResponse = await fetch('/events');
+            const events = await getResponse.json();
+            setEvents(events);
+        } else {
+            console.error(`Failed to delete exercise with id = ${_id}, status code = ${response.status}`)
+        }
+    }
 
     return (
         <>
@@ -46,14 +62,13 @@ function ViewEventsPage({ backendURL }) {
 
                 <tbody>
                     {events.map((event, index) => (
-                        <EventRow key={index} rowObject={event} backendURL={backendURL} refreshEvent={getData}/>
+                        <EventRow key={index} event={event} onEdit={onEdit} onDelete={onDelete} />
                     ))}
 
                 </tbody>
             </table>
 
             <CreateEventForm backendURL={backendURL} refreshEvent={getData} />
-            <UpdateEventForm events={events} backendURL={backendURL} refreshEvent={getData} />
         </>
     );
 }
