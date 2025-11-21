@@ -124,6 +124,37 @@ app.get('/view-ticket-holders', async (req, res) => {
 
 });
 
+// CREATE ROUTES
+app.post('/events/create', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const { visitingTeam, eventStart } = req.body;
+
+        // Create and execute our queries
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_CreateEvent(?, ?, @new_id);`;
+
+        // Store ID of last inserted row
+        const [[[rows]]] = await db.query(query1, [
+            visitingTeam,
+            eventStart,
+        ]);
+
+        console.log(`CREATE Events. ID: ${rows.new_id} ` +
+            `Visiting Team: ${visitingTeam} ${eventStart}`
+        );
+
+        // Send success status to frontend
+        res.status(200).json({ message: 'Event created successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
 // UPDATE ROUTES
 app.put('/events/update/:id', async function (req, res) {
     try {

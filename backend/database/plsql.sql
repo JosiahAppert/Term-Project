@@ -117,6 +117,31 @@ DELIMITER ;
 -- CALL sp_load_teamdb();
 
 -- #############################
+-- CREATE Events
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateEvent(
+    IN e_visitingTeam VARCHAR(255), 
+    IN e_eventStart VARCHAR(255), 
+    OUT e_eventID INT)
+BEGIN
+    INSERT INTO Events (visitingTeam, eventStart) 
+    VALUES (e_visitingTeam, e_eventStart);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_eventID;
+    -- Display the ID of the last inserted person.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateEvent('Theresa', 'Evans', 2, 48, @new_id);
+        -- SELECT @new_id AS 'New Person ID';
+END //
+DELIMITER ;
+
+-- #############################
 -- UPDATE Events
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateEvent;

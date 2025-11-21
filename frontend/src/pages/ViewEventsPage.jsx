@@ -28,6 +28,10 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
         getData();
     }, []);
 
+    const onCreate = async () => {
+        navigate("/events/create");
+    };
+
     const onEdit = async eventToEdit => {
         setEventToEdit(eventToEdit);
         navigate("/events/update");
@@ -66,7 +70,7 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
                 </tbody>
             </table>
 
-            <CreateEventForm backendURL={backendURL} refreshEvent={getData} />
+            <button onClick={onCreate}>Create Event</button>
         </>
     );
 }

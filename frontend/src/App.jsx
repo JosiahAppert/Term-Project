@@ -10,6 +10,7 @@ import ViewPlayersPage from './pages/ViewPlayersPage.jsx';
 import ViewTicketHoldersPage from './pages/ViewTicketHoldersPage.jsx';
 import ViewTicketsPage from './pages/ViewTicketsPage.jsx';
 import ResetDBForm from './components/ResetDBForm.jsx';
+import CreateEventsPage from './pages/CreateEventsPage.jsx';
 
 // Define the backend port and URL for API requests
 const backendPort = 1986; // Ideally stored in an environment variable
@@ -56,6 +57,7 @@ function App() {
             <Route path="/" element={<HomePage backendURL={backendURL} />} />
             <Route path="/reset-db" element={<ResetDBForm backendURL={backendURL} />} />
             <Route path="/events" element={<ViewEventsPage backendURL={backendURL} setEventToEdit={setEventToEdit} />} />
+            <Route path="/events/create" element={<CreateEventsPage backendURL={backendURL} />} />
             <Route path="/events/update" element={<EditEventsPage backendURL={backendURL} eventToEdit={eventToEdit} />} />
             <Route path="/view-players" element={<ViewPlayersPage backendURL={backendURL} />} />
             <Route path="/view-player-events" element={<ViewPlayerEventsPage backendURL={backendURL} />} />

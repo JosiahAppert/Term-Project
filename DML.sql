@@ -30,9 +30,37 @@ BEGIN
 END //
 DELIMITER ;
 
--- DELETE: Remove an event
-DELETE FROM Events
-WHERE eventID = @eventID;
+-- #############################
+-- DELETE Events
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeleteEvent(IN e_eventID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from Events table
+        DELETE FROM Events WHERE eventID = e_eventID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in Events for eventID: ', e_eventID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;
 
 /* ===========TICKETHOLDERS TABLE======= */
 
