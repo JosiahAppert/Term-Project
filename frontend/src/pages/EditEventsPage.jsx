@@ -33,7 +33,7 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
         } catch (error) {
             console.error('Error during form submission:', error);
         }
-        navigate('/view-events');
+        navigate('/events');
     };
 
     return (

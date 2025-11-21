@@ -15,7 +15,7 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
 
     const getData = async () => {
         try {
-            const response = await fetch(`${backendURL}/view-events`);
+            const response = await fetch(`${backendURL}/events`);
             if (!response.ok) throw new Error(`Server error: ${response.status}`);
             const data = await response.json();
             setEvents(data.events);
@@ -34,13 +34,11 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
     };
 
     const onDelete = async eventID => {
-        const response = await fetch(`/events/${eventID}`, { method: 'DELETE' });
+        const response = await fetch(`${backendURL}/events/${eventID}`, { method: 'DELETE' });
         if (response.status === 204) {
-            const getResponse = await fetch('/events');
-            const events = await getResponse.json();
-            setEvents(events);
+            getData();
         } else {
-            console.error(`Failed to delete exercise with id = ${_id}, status code = ${response.status}`)
+            console.error(`Failed to delete event with id = ${eventID}, status code = ${response.status}`)
         }
     }
 

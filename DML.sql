@@ -17,11 +17,18 @@ SELECT eventID, visitingTeam, eventStart
 FROM Events
 WHERE eventID = @eventID;
 
--- UPDATE: Edit an event’s details
-UPDATE Events
-SET visitingTeam = @visitingTeam,
-    eventStart = @eventStart
-WHERE eventID = @eventID;
+-- #############################
+-- UPDATE Events
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateEvent(IN e_eventID INT, IN e_visitingTeam VARCHAR(50), IN e_eventStart DATETIME)
+
+BEGIN
+    UPDATE Events SET visitingTeam = e_visitingTeam, eventStart = e_eventStart WHERE eventID = e_eventID; 
+END //
+DELIMITER ;
 
 -- DELETE: Remove an event
 DELETE FROM Events

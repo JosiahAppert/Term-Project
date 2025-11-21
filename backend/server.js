@@ -1,12 +1,13 @@
 // ########################################
 // ########## SETUP
-
 // Database
 const db = require('./database/db-connector');
 
 // Express
 const express = require('express');
 const app = express();
+
+
 
 // Middleware
 const cors = require('cors');
@@ -41,7 +42,7 @@ app.post('/reset-db', async function (req, res) {
 });
 
 // READ ROUTES
-app.get('/view-events', async (req, res) => {
+app.get('/events', async (req, res) => {
     try {
         // Create and execute our queries
         const query1 = `SELECT eventID, visitingTeam, DATE_FORMAT(eventStart, '%Y-%m-%d %H:%i:%s') AS eventStart FROM Events;`;
@@ -55,31 +56,6 @@ app.get('/view-events', async (req, res) => {
     }
     
 });
-
-// UPDATE ROUTES
-app.put('/events/update/:id', async function (req, res) {
-    try {
-        const eventID = req.params.id;
-        const { visitingTeam, eventStart } = req.body;
-
-        const query1 = 'CALL sp_UpdateEvent(?, ?, ?);';
-        const query2 = 'SELECT eventID, visitingTeam, eventStart FROM Events WHERE eventID = ?;';
-
-        await db.query(query1, [eventID, visitingTeam, eventStart]);
-
-        const [[rows]] = await db.query(query2, [eventID]);
-
-        console.log(
-            `UPDATE Events. ID: ${eventID} Visiting Team: ${rows.visitingTeam} Event Start: ${rows.eventStart}`
-        );
-
-        res.status(200).json({ message: 'Event updated successfully' });
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        res.status(500).send('An error occurred while executing the database queries.');
-    }
-});
-
 
 app.get('/view-players', async (req, res) => {
     try {
@@ -146,6 +122,50 @@ app.get('/view-ticket-holders', async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 
+});
+
+// UPDATE ROUTES
+app.put('/events/update/:id', async function (req, res) {
+    try {
+        const eventID = req.params.id;
+        const { visitingTeam, eventStart } = req.body;
+
+        const query1 = 'CALL sp_UpdateEvent(?, ?, ?);';
+        const query2 = 'SELECT eventID, visitingTeam, eventStart FROM Events WHERE eventID = ?;';
+
+        await db.query(query1, [eventID, visitingTeam, eventStart]);
+
+        const [[rows]] = await db.query(query2, [eventID]);
+
+        console.log(
+            `UPDATE Events. ID: ${eventID} Visiting Team: ${rows.visitingTeam} Event Start: ${rows.eventStart}`
+        );
+
+        res.status(200).json({ message: 'Event updated successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send('An error occurred while executing the database queries.');
+    }
+});
+
+// DELETE ROUTES
+app.delete('/events/:id', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const eventID = req.params.id
+
+        // Create and execute our query
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_DeleteEvent(?);`;
+        await db.query(query1, [eventID]);
+
+        console.log(`DELETE Events. ID: ${eventID}`);
+        return res.sendStatus(204);
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).json({ error: 'Failed to delete event' });
+    }
 });
 
 // ########################################
