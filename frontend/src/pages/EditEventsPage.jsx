@@ -40,6 +40,7 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
         <div>
             <h2>Edit Event</h2>
             <form onSubmit={editEvent}>
+                <label>Visiting Team</label>
                 <input
                     type="text"
                     autoComplete="off"
@@ -47,6 +48,7 @@ export const EditEventsPage = ({ backendURL, eventToEdit }) => {
                     value={visitingTeam}
                     onChange={e => setVisitingTeam(e.target.value)}
                 />
+                <label>Event Start</label>
                 <input
                     type="datetime-local"
                     value={eventStart}

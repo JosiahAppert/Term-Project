@@ -169,6 +169,33 @@ END //
 DELIMITER ;
 
 -- #############################
+-- CREATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicketHolder(
+    IN e_fName VARCHAR(50), 
+    IN e_lName VARCHAR(50),
+    IN e_email VARCHAR(100),
+    IN e_phone VARCHAR(20),
+    OUT e_ticketHolderID INT)
+BEGIN
+    INSERT INTO TicketHolders (fName, lName, email, phone) 
+    VALUES (e_fName, e_lName, e_email, e_phone);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_ticketHolderID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateTicketHolder('Theresa', 'Evans', tevans@gmail.com, 5555555555, @new_id);
+        -- SELECT @new_id AS 'New TicketHolder ID';
+END //
+DELIMITER ;
+
+-- #############################
 -- UPDATE Events
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateEvent;
@@ -178,6 +205,32 @@ CREATE PROCEDURE sp_UpdateEvent(IN e_eventID INT, IN e_visitingTeam VARCHAR(50),
 
 BEGIN
     UPDATE Events SET visitingTeam = e_visitingTeam, eventStart = e_eventStart WHERE eventID = e_eventID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdatePlayer(IN e_playerID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_position VARCHAR(50), IN e_salary INT)
+
+BEGIN
+    UPDATE Players SET fName = e_fName, lName = e_lName, position = e_position, salary = e_salary WHERE playerID = e_playerID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateTicketHolder(IN e_ticketHolderID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_email VARCHAR(100), IN e_phone VARCHAR(20))
+
+BEGIN
+    UPDATE TicketHolders SET fName = e_fName, lName = e_lName, email = e_email, phone = e_phone WHERE ticketHolderID = e_ticketHolderID; 
 END //
 DELIMITER ;
 
@@ -204,6 +257,70 @@ BEGIN
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
         IF ROW_COUNT() = 0 THEN
             set error_message = CONCAT('No matching record found in Events for eventID: ', e_eventID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;
+
+-- #############################
+-- DELETE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeletePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeletePlayer(IN e_playerID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from Players table
+        DELETE FROM Players WHERE playerID = e_playerID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in Players for playerID: ', e_playerID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;
+
+-- #############################
+-- DELETE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeleteTicketHolder(IN e_ticketHolderID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from TicketHolders table
+        DELETE FROM TicketHolders WHERE ticketHolderID = e_ticketHolderID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in TicketHolders for ticketHolderID: ', e_ticketHolderID);
             -- Trigger custom error, invoke EXIT HANDLER
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
         END IF;

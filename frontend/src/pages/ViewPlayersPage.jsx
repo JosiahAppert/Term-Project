@@ -58,7 +58,7 @@ function ViewPlayersPage({ backendURL, setPlayerToEdit }) {
                             <th key={index}>
                                 {columnAliases[header] || header}</th>
                         ))}
-                        <th></th>
+                        <th>Edit/Delete</th>
                     </tr>
                 </thead>
 

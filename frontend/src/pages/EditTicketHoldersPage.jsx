@@ -1,49 +1,49 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const EditPlayersPage = ({ backendURL, playerToEdit }) => {
-    const [fName, setFName] = useState(playerToEdit.fName);
-    const [lName, setLName] = useState(playerToEdit.lName);
-    const [position, setPosition] = useState(playerToEdit.position);
-    const [salary, setSalary] = useState(playerToEdit.salary);
+export const EditTicketHoldersPage = ({ backendURL, ticketHolderToEdit }) => {
+    const [fName, setFName] = useState(ticketHolderToEdit.fName);
+    const [lName, setLName] = useState(ticketHolderToEdit.lName);
+    const [email, setEmail] = useState(ticketHolderToEdit.email);
+    const [phone, setPhone] = useState(ticketHolderToEdit.phone);
 
     const navigate = useNavigate();
 
-    const editPlayer = async (e) => {
+    const editTicketHolder = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${backendURL}/players/update/${playerToEdit.playerID}`, {
+            const response = await fetch(`${backendURL}/ticket-holders/update/${ticketHolderToEdit.ticketHolderID}`, {
                 method: 'PUT', // or 'POST' if your backend expects that
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    id: playerToEdit.playerID,
+                    id: ticketHolderToEdit.ticketHolderID,
                     fName,
                     lName,
-                    position,
-                    salary,
+                    email,
+                    phone,
                 }),
             });
 
             if (response.ok) {
-                console.log("Player updated successfully.");
-                alert("Player updated successfully.");
+                console.log("Ticket holder updated successfully.");
+                alert("Ticket holder updated successfully.");
             } else {
                 const errorData = await response.json();
-                console.error("Error updating player:", errorData);
-                alert("Error updating player:", errorData);
+                console.error("Error updating ticket holder:", errorData);
+                alert("Error updating ticket holder:", errorData);
             }
         } catch (error) {
             console.error('Error during form submission:', error);
         }
-        navigate('/players');
+        navigate('/ticket-holders');
     };
 
     return (
         <div>
-            <h2>Edit Player</h2>
-            <form onSubmit={editPlayer}>
+            <h2>Edit Ticket Holder</h2>
+            <form onSubmit={editTicketHolder}>
                 <label>First Name</label>
                 <input
                     type="text"
@@ -56,17 +56,17 @@ export const EditPlayersPage = ({ backendURL, playerToEdit }) => {
                     value={lName}
                     onChange={e => setLName(e.target.value)}
                 />
-                <label>Position</label>
+                <label>Email</label>
                 <input
                     type="text"
-                    value={position}
-                    onChange={e => setPosition(e.target.value)}
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
                 />
-                <label>Salary</label>
+                <label>Phone</label>
                 <input
-                    type="number"
-                    value={salary}
-                    onChange={e => setSalary(e.target.value)}
+                    type="text"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
                 />
                 <button type="submit">Update</button>
             </form>
@@ -74,4 +74,4 @@ export const EditPlayersPage = ({ backendURL, playerToEdit }) => {
     );
 };
 
-export default EditPlayersPage;
+export default EditTicketHoldersPage;

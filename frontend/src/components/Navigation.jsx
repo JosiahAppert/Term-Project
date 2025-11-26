@@ -9,7 +9,7 @@ function Navigation() {
             <Link to="/players">Players</Link>
             <Link to="/view-player-events">Player Events</Link>
             <Link to="/view-tickets">Tickets</Link>
-            <Link to="/view-ticket-holders">Ticket Holders</Link>
+            <Link to="/ticket-holders">Ticket Holders</Link>
         </nav>
     );
 }

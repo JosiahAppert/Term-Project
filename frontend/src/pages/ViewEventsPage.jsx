@@ -57,7 +57,7 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
                                 {columnAliases[header] || header}
                             </th>
                         ))}
-                        <th></th>
+                        <th>Edit/Delete</th>
                     </tr>
                 </thead>
 

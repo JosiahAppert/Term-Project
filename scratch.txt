@@ -1,0 +1,132 @@
+-- #############################
+-- CREATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicketHolder(
+    IN e_fName VARCHAR(50), 
+    IN e_lName VARCHAR(50),
+    IN e_email VARCHAR(100),
+    IN e_phone VARCHAR(20),
+    OUT e_ticketHolderID INT)
+BEGIN
+    INSERT INTO TicketHolders (fName, lName, email, phone) 
+    VALUES (e_fName, e_lName, e_email, e_phone);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_ticketHolderID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateTicketHolder('Theresa', 'Evans', tevans@gmail.com, 5555555555, @new_id);
+        -- SELECT @new_id AS 'New TicketHolder ID';
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateTicketHolder(IN e_ticketHolderID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_email VARCHAR(100), IN e_phone VARCHAR(20))
+
+BEGIN
+    UPDATE TicketHolders SET fName = e_fName, lName = e_lName, email = e_email, phone = e_phone WHERE ticketHolderID = e_ticketHolderID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- DELETE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeleteTicketHolder(IN e_ticketHolderID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from TicketHolders table
+        DELETE FROM TicketHolders WHERE ticketHolderID = e_ticketHolderID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in TicketHolders for ticketHolderID: ', e_ticketHolderID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;
+
+app.put('/ticket-holders/update/:id', async function (req, res) {
+    try {
+        const ticketHolderID = req.params.id;
+        const { fName, lName, email, phone } = req.body;
+
+        const query1 = 'CALL sp_UpdateTicketHolder(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT ticketHolderID, fName, lName, email, phone FROM TicketHolders WHERE ticketHolderID = ?;';
+
+        await db.query(query1, [ticketHolderID, fName, lName, email, phone]);
+
+        const [[rows]] = await db.query(query2, [ticketHolderID]);
+
+        console.log(
+            `UPDATE TicketHolders. ID: ${ticketHolderID} Name: ${rows.fName} ${rows.lName}`
+        );
+
+        res.status(200).json({ message: 'TicketHolder updated successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send('An error occurred while executing the database queries.');
+    }
+});
+
+app.delete('/ticket-holders/:id', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const ticketHolderID = req.params.id
+
+        // Create and execute our query
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_DeleteTicketHolder(?);`;
+        await db.query(query1, [ticketHolderID]);
+
+        console.log(`DELETE TicketHolders. ID: ${ticketHolderID}`);
+        return res.sendStatus(204);
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).json({ error: 'Failed to delete ticket holder' });
+    }
+});
+
+import '../App.css';
+import { MdEdit, MdDelete } from "react-icons/md";
+
+const TicketHolderRow = ({ ticketHolder, onEdit, onDelete }) => {
+    return (
+        <tr>
+            {Object.values(ticketHolder).map((value, index) => (
+                <td key={index}>{value}</td>
+            ))}
+            <td>
+                <MdEdit onClick={e => {e.preventDefault(); onEdit(ticketHolder);}} id="edit" />
+                <MdDelete onClick={e => {e.preventDefault(); onDelete(ticketHolder.ticketHolderID);}} id="delete" />
+            </td>
+        </tr>
+    );
+};
+
+export default TicketHolderRow;

@@ -1,0 +1,66 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export const CreateTicketHoldersPage = ({ backendURL }) => {
+    const [fName, setFName] = useState('');
+    const [lName, setLName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+
+    const navigate = useNavigate();
+
+    const addTicketHolder = async (e) => {
+        e.preventDefault();
+        const newTicketHolder = {fName, lName, email, phone};
+        console.log(newTicketHolder);
+        const response = await fetch(
+            `${backendURL}/ticket-holders/create`, {
+                method: 'POST',
+                headers: {'Content-type': 'application/json'},
+                body: JSON.stringify(newTicketHolder)
+                }
+        );
+
+        if(response.ok){
+            alert("Successfully added the ticket holder");
+            navigate('/ticket-holders');
+        } else{
+            alert("Failed to add ticket holder, status code = " + response.status);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Create Ticket Holder</h2>
+            <form onSubmit={addTicketHolder}>
+                <label>First Name</label>
+                <input
+                    type="text"
+                    value={fName}
+                    onChange={e => setFName(e.target.value)}
+                />
+                <label>Last Name</label>
+                <input
+                    type="text"
+                    value={lName}
+                    onChange={e => setLName(e.target.value)}
+                />
+                <label>Email</label>
+                <input
+                    type="text"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                />
+                <label>Phone</label>
+                <input
+                    type="text"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                />
+                <button type="submit">Create</button>
+            </form>
+        </div>
+    );
+}
+
+export default CreateTicketHoldersPage;
