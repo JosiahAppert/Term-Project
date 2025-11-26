@@ -23,7 +23,7 @@ function ViewPlayerEventsPage({ backendURL }) {
         try {
             const [playerEventsRes, eventsRes, playersRes] = await Promise.all([
                 fetch(`${backendURL}/view-player-events`),
-                fetch(`${backendURL}/view-events`),
+                fetch(`${backendURL}/events`),
                 fetch(`${backendURL}/view-players`)
             ]);
 
