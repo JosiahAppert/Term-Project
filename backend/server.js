@@ -57,7 +57,7 @@ app.get('/events', async (req, res) => {
     
 });
 
-app.get('/view-players', async (req, res) => {
+app.get('/players', async (req, res) => {
     try {
         // Create and execute our queries
         const query2 = `SELECT playerID, fName, lName, position, salary FROM Players;`;
@@ -146,6 +146,38 @@ app.post('/events/create', async function (req, res) {
 
         // Send success status to frontend
         res.status(200).json({ message: 'Event created successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
+app.post('/players/create', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const { fName, lName, position, salary } = req.body;
+
+        // Create and execute our queries
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_CreatePlayer(?, ?, ?, ?, @new_id);`;
+
+        // Store ID of last inserted row
+        const [[[rows]]] = await db.query(query1, [
+            fName,
+            lName,
+            position,
+            salary,
+        ]);
+
+        console.log(`CREATE Players. ID: ${rows.new_id} ` +
+            `Name: ${fName} ${lName}`
+        );
+
+        // Send success status to frontend
+        res.status(200).json({ message: 'Player created successfully' });
     } catch (error) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser

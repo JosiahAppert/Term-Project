@@ -34,8 +34,6 @@ export const CreateEventsPage = ({ backendURL }) => {
                 <label>Visiting Team</label>
                 <input
                     type="text"
-                    autoComplete="off"
-                    data-form-type="other"
                     value={visitingTeam}
                     onChange={e => setVisitingTeam(e.target.value)}
                 />

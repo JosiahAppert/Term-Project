@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EventRow from "../components/EventRow.jsx";
-import CreateEventForm from "../components/CreateEventForm.jsx";
 
 function ViewEventsPage({ backendURL, setEventToEdit }) {
     const [events, setEvents] = useState([]);
@@ -66,10 +65,8 @@ function ViewEventsPage({ backendURL, setEventToEdit }) {
                     {events.map((event, index) => (
                         <EventRow key={index} event={event} onEdit={onEdit} onDelete={onDelete} />
                     ))}
-
                 </tbody>
             </table>
-
             <button onClick={onCreate}>Create Event</button>
         </>
     );

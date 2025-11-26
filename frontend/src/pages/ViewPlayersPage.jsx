@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PlayerRow from "../components/PlayerRow.jsx";
-import CreatePlayerForm from "../components/CreatePlayerForm.jsx";
-import UpdatePlayerForm from "../components/UpdatePlayerForm.jsx";
 
-function ViewPlayersPage({ backendURL }) {
+function ViewPlayersPage({ backendURL, setPlayerToEdit }) {
     const [players, setPlayers] = useState([]);
+    const navigate = useNavigate();
 
     const columnAliases = {
         playerID: "Player ID",
@@ -16,7 +16,7 @@ function ViewPlayersPage({ backendURL }) {
 
     const getData = async () => {
         try {
-            const response = await fetch(`${backendURL}/view-players`);
+            const response = await fetch(`${backendURL}/players`);
             if (!response.ok) throw new Error(`Server error: ${response.status}`);
             const data = await response.json();
             setPlayers(data.players);
@@ -29,6 +29,23 @@ function ViewPlayersPage({ backendURL }) {
         getData();
     }, []);
 
+    const onCreate = async () => {
+        navigate("/players/create");
+    };
+
+    const onEdit = async playerToEdit => {
+        setPlayerToEdit(playerToEdit);
+        navigate("/players/update");
+    };
+
+    const onDelete = async playerID => {
+        const response = await fetch(`${backendURL}/players/${playerID}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            getData();
+        } else {
+            console.error(`Failed to delete player with id = ${playerID}, status code = ${response.status}`)
+        }
+    }
 
     return (
         <>
@@ -47,14 +64,11 @@ function ViewPlayersPage({ backendURL }) {
 
                 <tbody>
                     {players.map((player, index) => (
-                        <PlayerRow key={index} rowObject={player} backendURL={backendURL} refreshPlayer={getData}/>
+                        <PlayerRow key={index} player={player} onEdit={onEdit} onDelete={onDelete} />
                     ))}
-
                 </tbody>
             </table>
-
-            <CreatePlayerForm backendURL={backendURL} refreshPlayer={getData} />
-            <UpdatePlayerForm players={players} backendURL={backendURL} refreshPlayers={getData} />
+            <button onClick={onCreate}>Create Player</button>
         </>
     );
 }

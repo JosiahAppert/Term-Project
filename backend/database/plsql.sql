@@ -123,8 +123,8 @@ DROP PROCEDURE IF EXISTS sp_CreateEvent;
 
 DELIMITER //
 CREATE PROCEDURE sp_CreateEvent(
-    IN e_visitingTeam VARCHAR(255), 
-    IN e_eventStart VARCHAR(255), 
+    IN e_visitingTeam VARCHAR(50), 
+    IN e_eventStart DATETIME, 
     OUT e_eventID INT)
 BEGIN
     INSERT INTO Events (visitingTeam, eventStart) 
@@ -132,6 +132,33 @@ BEGIN
 
     -- Store the ID of the last inserted row
     SELECT LAST_INSERT_ID() into e_eventID;
+    -- Display the ID of the last inserted person.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateEvent('Theresa', 'Evans', 2, 48, @new_id);
+        -- SELECT @new_id AS 'New Person ID';
+END //
+DELIMITER ;
+
+-- #############################
+-- CREATE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreatePlayer(
+    IN e_fName VARCHAR(50), 
+    IN e_lName VARCHAR(50),
+    IN e_position VARCHAR(50),
+    IN e_salary INT,
+    OUT e_playerID INT)
+BEGIN
+    INSERT INTO Players (fName, lName, position, salary) 
+    VALUES (e_fName, e_lName, e_position, e_salary);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_playerID;
     -- Display the ID of the last inserted person.
     SELECT LAST_INSERT_ID() AS 'new_id';
 
