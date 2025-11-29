@@ -1,50 +1,51 @@
 -- #############################
--- CREATE TicketHolders
+-- CREATE PlayerEvents
 -- #############################
-DROP PROCEDURE IF EXISTS sp_CreateTicketHolder;
+DROP PROCEDURE IF EXISTS sp_CreatePlayerEvent;
 
 DELIMITER //
-CREATE PROCEDURE sp_CreateTicketHolder(
-    IN e_fName VARCHAR(50), 
-    IN e_lName VARCHAR(50),
-    IN e_email VARCHAR(100),
-    IN e_phone VARCHAR(20),
-    OUT e_ticketHolderID INT)
+CREATE PROCEDURE sp_CreatePlayerEvent(
+    IN e_eventID INT, 
+    IN e_playerID INT,
+    IN e_inningsPlayed INT,
+    IN e_salary INT,
+    OUT e_eventID INT,
+    OUT e_playerID INT)
 BEGIN
-    INSERT INTO TicketHolders (fName, lName, email, phone) 
-    VALUES (e_fName, e_lName, e_email, e_phone);
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salary) 
+    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salary);
 
     -- Store the ID of the last inserted row
-    SELECT LAST_INSERT_ID() into e_ticketHolderID;
+    SELECT LAST_INSERT_ID() into e_eventID;
     -- Display the ID of the last inserted ticket holder.
     SELECT LAST_INSERT_ID() AS 'new_id';
 
     -- Example of how to get the ID of the newly created person:
-        -- CALL sp_CreateTicketHolder('Theresa', 'Evans', tevans@gmail.com, 5555555555, @new_id);
+        -- CALL sp_CreatePlayerEvent('Theresa', 'Evans', tevans@gmail.com, 5555555555, @new_id);
         -- SELECT @new_id AS 'New TicketHolder ID';
 END //
 DELIMITER ;
 
 -- #############################
--- UPDATE TicketHolders
+-- UPDATE PlayerEvents
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateTicketHolder;
 
 DELIMITER //
-CREATE PROCEDURE sp_UpdateTicketHolder(IN e_ticketHolderID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_email VARCHAR(100), IN e_phone VARCHAR(20))
+CREATE PROCEDURE sp_UpdateTicketHolder(IN e_eventID INT, IN e_eventID VARCHAR(50), IN e_playerID VARCHAR(50), IN e_inningsPlayed VARCHAR(100), IN e_salary VARCHAR(20))
 
 BEGIN
-    UPDATE TicketHolders SET fName = e_fName, lName = e_lName, email = e_email, phone = e_phone WHERE ticketHolderID = e_ticketHolderID; 
+    UPDATE PlayerEvents SET eventID = e_eventID, playerID = e_playerID, inningsPlayed = e_inningsPlayed, salary = e_salary WHERE ticketHolderID = e_eventID; 
 END //
 DELIMITER ;
 
 -- #############################
--- DELETE TicketHolders
+-- DELETE PlayerEvents
 -- #############################
 DROP PROCEDURE IF EXISTS sp_DeleteTicketHolder;
 
 DELIMITER //
-CREATE PROCEDURE sp_DeleteTicketHolder(IN e_ticketHolderID INT)
+CREATE PROCEDURE sp_DeleteTicketHolder(IN e_eventID INT)
 BEGIN
     DECLARE error_message VARCHAR(255); 
 
@@ -55,12 +56,12 @@ BEGIN
     END;
 
     START TRANSACTION;
-        -- Deleting corresponding row from TicketHolders table
-        DELETE FROM TicketHolders WHERE ticketHolderID = e_ticketHolderID;
+        -- Deleting corresponding row from PlayerEvents table
+        DELETE FROM PlayerEvents WHERE ticketHolderID = e_eventID;
 
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
         IF ROW_COUNT() = 0 THEN
-            set error_message = CONCAT('No matching record found in TicketHolders for ticketHolderID: ', e_ticketHolderID);
+            set error_message = CONCAT('No matching record found in PlayerEvents for ticketHolderID: ', e_eventID);
             -- Trigger custom error, invoke EXIT HANDLER
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
         END IF;
@@ -73,17 +74,17 @@ DELIMITER ;
 app.put('/ticket-holders/update/:id', async function (req, res) {
     try {
         const ticketHolderID = req.params.id;
-        const { fName, lName, email, phone } = req.body;
+        const { eventID, playerID, inningsPlayed, salary } = req.body;
 
         const query1 = 'CALL sp_UpdateTicketHolder(?, ?, ?, ?, ?);';
-        const query2 = 'SELECT ticketHolderID, fName, lName, email, phone FROM TicketHolders WHERE ticketHolderID = ?;';
+        const query2 = 'SELECT ticketHolderID, eventID, playerID, inningsPlayed, salary FROM PlayerEvents WHERE ticketHolderID = ?;';
 
-        await db.query(query1, [ticketHolderID, fName, lName, email, phone]);
+        await db.query(query1, [ticketHolderID, eventID, playerID, inningsPlayed, salary]);
 
         const [[rows]] = await db.query(query2, [ticketHolderID]);
 
         console.log(
-            `UPDATE TicketHolders. ID: ${ticketHolderID} Name: ${rows.fName} ${rows.lName}`
+            `UPDATE PlayerEvents. ID: ${ticketHolderID} Name: ${rows.eventID} ${rows.playerID}`
         );
 
         res.status(200).json({ message: 'TicketHolder updated successfully' });
@@ -103,7 +104,7 @@ app.delete('/ticket-holders/:id', async function (req, res) {
         const query1 = `CALL sp_DeleteTicketHolder(?);`;
         await db.query(query1, [ticketHolderID]);
 
-        console.log(`DELETE TicketHolders. ID: ${ticketHolderID}`);
+        console.log(`DELETE PlayerEvents. ID: ${ticketHolderID}`);
         return res.sendStatus(204);
     } catch (error) {
         console.error('Error executing queries:', error);
