@@ -109,12 +109,12 @@ app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
 
         const { eventID, playerID, inningsPlayed, salary } = req.body;
 
-        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?, ?);';
+        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?);';
         const query2 = 'SELECT eventID, playerID, inningsPlayed, salary FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
 
         await db.query(query1, [eventID, playerID, inningsPlayed, salary]);
 
-        const [[rows]] = await db.query(query2, [eventID]);
+        const [[rows]] = await db.query(query2, [eventID, playerID]);
 
         console.log(
             `UPDATE PlayerEvents. ID: ${rows.eventID}${rows.playerID}`
@@ -127,7 +127,7 @@ app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
     }
 });
 
-app.delete('/player-events/:id', async function (req, res) {
+app.delete('/player-events/:eventID/:playerID', async function (req, res) {
     try {
         // Parse frontend form information
         const eventID = req.params.eventID

@@ -1,13 +1,16 @@
-import DeletePlayerEventForm from "./DeletePlayerEventForm";
+import '../App.css';
+import { MdEdit, MdDelete } from "react-icons/md";
 
-const PlayerEventRow = ({ rowObject, backendURL, refreshPlayerEvent }) => {
+const PlayerEventRow = ({ playerEvent, onEdit, onDelete }) => {
     return (
         <tr>
-            {Object.values(rowObject).map((value, index) => (
+            {Object.values(playerEvent).map((value, index) => (
                 <td key={index}>{value}</td>
             ))}
-            
-            <DeletePlayerEventForm rowObject={rowObject} backendURL={backendURL} refreshPlayerEvent={refreshPlayerEvent} />
+            <td>
+                <MdEdit onClick={e => {e.preventDefault(); onEdit(playerEvent);}} id="edit" />
+                <MdDelete onClick={e => {e.preventDefault(); onDelete(playerEvent.eventID, playerEvent.playerID);}} id="delete" />
+            </td>
         </tr>
     );
 };
