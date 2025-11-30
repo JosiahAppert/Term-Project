@@ -7,7 +7,7 @@ function Navigation() {
             <Link to="/">Home</Link>
             <Link to="/events">Events</Link>
             <Link to="/players">Players</Link>
-            <Link to="/view-player-events">Player Events</Link>
+            <Link to="/player-events">Player Events</Link>
             <Link to="/view-tickets">Tickets</Link>
             <Link to="/ticket-holders">Ticket Holders</Link>
         </nav>
