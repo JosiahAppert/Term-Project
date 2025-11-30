@@ -2,16 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const CreatePlayerEventsPage = ({ backendURL, events, players }) => {
-    const [eventID, setEventID] = useState('');
-    const [playerID, setPlayerID] = useState('');
-    const [inningsPlayed, setInningsPlayed] = useState('');
-    const [salary, setSalary] = useState('');
+    const [eventID, setEventID] = useState(0);
+    const [playerID, setPlayerID] = useState(0);
+    const [inningsPlayed, setInningsPlayed] = useState(0);
+    const [salary, setSalary] = useState(0);
 
     const navigate = useNavigate();
 
     const addPlayerEvent = async (e) => {
         e.preventDefault();
-        const newPlayerEvent = {eventID, playerID, inningsPlayed, salary};
+        const newPlayerEvent = {eventID: Number(eventID), playerID: Number(playerID), inningsPlayed: Number(inningsPlayed), salary: Number(salary)};
         console.log(newPlayerEvent);
         const response = await fetch(
             `${backendURL}/player-events/create`, {
@@ -38,7 +38,7 @@ export const CreatePlayerEventsPage = ({ backendURL, events, players }) => {
                     <option value="">Select an Event</option>
                     <option value="NULL">&lt; None &gt;</option>
                     {events.map((event, index) => (
-                        <option value={event.id} key={index}>{event.visitingTeam} {event.eventStart}</option>
+                        <option value={event.eventID} key={index}>{event.visitingTeam} {event.eventStart}</option>
                     ))}
                 </select>
                 <label>Player: </label>
@@ -46,7 +46,7 @@ export const CreatePlayerEventsPage = ({ backendURL, events, players }) => {
                     <option value="">Select a Player</option>
                     <option value="NULL">&lt; None &gt;</option>
                     {players.map((player, index) => (
-                        <option value={player.id} key={index}>{player.fName} {player.lName}</option>
+                        <option value={player.playerID} key={index}>{player.fName} {player.lName}</option>
                     ))}
                 </select>
                 <label>Innings Played: </label>

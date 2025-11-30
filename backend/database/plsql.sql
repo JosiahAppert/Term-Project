@@ -212,9 +212,9 @@ BEGIN
     VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salary);
 
     -- Store the ID of the last inserted row
-    SELECT CONCAT(e_eventID,e_playerID) INTO e_newID;
+    SELECT LAST_INSERT_ID() INTO e_newID;
     -- Display the ID of the last inserted ticket holder.
-    SELECT CONCAT(e_eventID,e_playerID) AS 'new_id';
+    SELECT LAST_INSERT_ID() AS 'new_id';
 
     -- Example of how to get the ID of the newly created person:
         -- CALL sp_CreatePlayerEvent(1, 2, 7, 120000, @new_id);

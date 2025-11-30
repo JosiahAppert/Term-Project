@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PlayerEventRow from "../components/PlayerEventRow.jsx";
 
-function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit }) {
+function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit, setPlayerToEdit, setEventToEdit }) {
     const [events, setEvents] = useState([]);
     const [players, setPlayers] = useState([]);
     const [playerEvents, setPlayerEvents] = useState([]);
@@ -45,6 +45,8 @@ function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit }) {
     }, []);
 
     const onCreate = async () => {
+        setEventToEdit(events);
+        setPlayerToEdit(players);
         navigate("/player-events/create");
     };
 
