@@ -9,6 +9,8 @@ import CreateEventsPage from './pages/CreateEventsPage.jsx';
 import EditEventsPage from './pages/EditEventsPage.jsx';
 
 import ViewPlayerEventsPage from './pages/ViewPlayerEventsPage.jsx';
+import CreatePlayerEventsPage from './pages/CreatePlayerEventsPage.jsx';
+import EditPlayerEventsPage from './pages/EditPlayerEventsPage.jsx';
 
 import ViewPlayersPage from './pages/ViewPlayersPage.jsx';
 import CreatePlayersPage from './pages/CreatePlayersPage.jsx';
@@ -31,6 +33,7 @@ function App() {
   const [eventToEdit, setEventToEdit] = useState([]);
   const [playerToEdit, setPlayerToEdit] = useState([]);
   const [ticketHolderToEdit, setTicketHolderToEdit] = useState([]);
+  const [playerEventToEdit, setPlayerEventToEdit] = useState([]);
 
   // Get the data from the database
   const getData = async () => {
@@ -74,7 +77,9 @@ function App() {
             <Route path="/players" element={<ViewPlayersPage backendURL={backendURL} setPlayerToEdit={setPlayerToEdit} />} />
             <Route path="/players/create" element={<CreatePlayersPage backendURL={backendURL} />} />
             <Route path="/players/update" element={<EditPlayersPage backendURL={backendURL} playerToEdit={playerToEdit} />} />
-            <Route path="/view-player-events" element={<ViewPlayerEventsPage backendURL={backendURL} />} />
+            <Route path="/player-events" element={<ViewPlayerEventsPage backendURL={backendURL} setPlayerEventToEdit={setPlayerEventToEdit} />} />
+            <Route path="/player-events/create" element={<CreatePlayerEventsPage backendURL={backendURL} />} />
+            <Route path="/player-events/update" element={<EditPlayerEventsPage backendURL={backendURL} playerEventToEdit={playerEventToEdit} />} />
             <Route path="/view-tickets" element={<ViewTicketsPage backendURL={backendURL} />} />
             <Route path="/ticket-holders" element={<ViewTicketHoldersPage backendURL={backendURL} setTicketHolderToEdit={setTicketHolderToEdit} />} />
             <Route path="/ticket-holders/create" element={<CreateTicketHoldersPage backendURL={backendURL} />} />

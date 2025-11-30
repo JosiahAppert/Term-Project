@@ -31,13 +31,13 @@ export const CreateEventsPage = ({ backendURL }) => {
         <div>
             <h2>Create Event</h2>
             <form onSubmit={addEvent}>
-                <label>Visiting Team</label>
+                <label>Visiting Team: </label>
                 <input
                     type="text"
                     value={visitingTeam}
                     onChange={e => setVisitingTeam(e.target.value)}
                 />
-                <label>Event Start</label>
+                <label>Event Start: </label>
                 <input
                     type="datetime-local"
                     value={eventStart}

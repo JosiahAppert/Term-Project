@@ -33,25 +33,25 @@ export const CreateTicketHoldersPage = ({ backendURL }) => {
         <div>
             <h2>Create Ticket Holder</h2>
             <form onSubmit={addTicketHolder}>
-                <label>First Name</label>
+                <label>First Name: </label>
                 <input
                     type="text"
                     value={fName}
                     onChange={e => setFName(e.target.value)}
                 />
-                <label>Last Name</label>
+                <label>Last Name: </label>
                 <input
                     type="text"
                     value={lName}
                     onChange={e => setLName(e.target.value)}
                 />
-                <label>Email</label>
+                <label>Email: </label>
                 <input
                     type="text"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                 />
-                <label>Phone</label>
+                <label>Phone: </label>
                 <input
                     type="text"
                     value={phone}

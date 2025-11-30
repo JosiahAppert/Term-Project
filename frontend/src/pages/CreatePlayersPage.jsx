@@ -33,25 +33,25 @@ export const CreatePlayersPage = ({ backendURL }) => {
         <div>
             <h2>Create Player</h2>
             <form onSubmit={addPlayer}>
-                <label>First Name</label>
+                <label>First Name: </label>
                 <input
                     type="text"
                     value={fName}
                     onChange={e => setFName(e.target.value)}
                 />
-                <label>Last Name</label>
+                <label>Last Name: </label>
                 <input
                     type="text"
                     value={lName}
                     onChange={e => setLName(e.target.value)}
                 />
-                <label>Position</label>
+                <label>Position: </label>
                 <input
                     type="text"
                     value={position}
                     onChange={e => setPosition(e.target.value)}
                 />
-                <label>Salary</label>
+                <label>Salary: </label>
                 <input
                     type="number"
                     value={salary}

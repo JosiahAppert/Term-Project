@@ -72,7 +72,7 @@ app.get('/players', async (req, res) => {
     
 });
 
-app.get('/view-player-events', async (req, res) => {
+app.get('/player-events', async (req, res) => {
     try {
         // Create and execute our queries
         const query3 = `SELECT pe.eventID, pe.playerID, p.fName, p.lName , pe.inningsPlayed, pe.salaryPaid, DATE_FORMAT(e.eventStart, '%Y-%m-%d %H:%i:%s') AS eventStart

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PlayerEventRow from "../components/PlayerEventRow.jsx";
-import CreatePlayerEventForm from "../components/CreatePlayerEventForm.jsx";
-import UpdatePlayerEventForm from "../components/UpdatePlayerEventForm.jsx";
 
-function ViewPlayerEventsPage({ backendURL }) {
-    const [playerEvents, setPlayerEvents] = useState([]);
+function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit }) {
     const [events, setEvents] = useState([]);
     const [players, setPlayers] = useState([]);
+    const [playerEvents, setPlayerEvents] = useState([]);
+
+    const navigate = useNavigate();
 
     const columnAliases = {
         eventID: "Event ID",
@@ -22,14 +23,14 @@ function ViewPlayerEventsPage({ backendURL }) {
     const getData = async () => {
         try {
             const [playerEventsRes, eventsRes, playersRes] = await Promise.all([
-                fetch(`${backendURL}/view-player-events`),
+                fetch(`${backendURL}/player-events`),
                 fetch(`${backendURL}/events`),
                 fetch(`${backendURL}/players`)
             ]);
 
-            const playerEventsData = await playerEventsRes.json();
             const eventsData = await eventsRes.json();
             const playersData = await playersRes.json();
+            const playerEventsData = await playerEventsRes.json();
 
             setPlayerEvents(playerEventsData.playerEvents || playerEventsData);
             setEvents(eventsData.events || eventsData);
@@ -43,6 +44,24 @@ function ViewPlayerEventsPage({ backendURL }) {
         getData();
     }, []);
 
+    const onCreate = async () => {
+        navigate("/player-events/create");
+    };
+
+    const onEdit = async playerEventToEdit => {
+        setPlayerEventToEdit(playerEventToEdit);
+        navigate("/player-events/update");
+    };
+
+    const onDelete = async (eventID, playerID) => {
+        const response = await fetch(`${backendURL}/events/${eventID}/${playerID}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            getData();
+        } else {
+            console.error(`Failed to delete player event with id = ${eventID}${playerID}, status code = ${response.status}`)
+        }
+    }
+
     return (
         <>
             <h2>List of Player Events</h2>
@@ -50,42 +69,22 @@ function ViewPlayerEventsPage({ backendURL }) {
             <table>
                 <thead>
                     <tr>
-                        {playerEvents.length > 0 &&
-                            Object.keys(playerEvents[0]).map((header, index) => (
-                                <th key={index}>
-                                    {columnAliases[header] || header}
-                                </th>
-                            ))}
-                        <th></th>
+                        {playerEvents.length > 0 && Object.keys(playerEvents[0]).map((header, index) => (
+                            <th key={index}>
+                                {columnAliases[header] || header}
+                            </th>
+                        ))}
+                        <th>Edit/Delete</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {playerEvents.map((playerEvent, index) => (
-                        <PlayerEventRow
-                            key={index}
-                            rowObject={playerEvent}
-                            backendURL={backendURL}
-                            refreshPlayerEvent={getData}
-                        />
+                        <PlayerEventRow key={index} playerEvent={playerEvent} onEdit={onEdit} onDelete={onDelete} />
                     ))}
                 </tbody>
             </table>
-
-            <CreatePlayerEventForm
-                events={events}
-                players={players}
-                backendURL={backendURL}
-                refreshPlayerEvent={getData}
-            />
-
-            <UpdatePlayerEventForm
-                playerEvents={playerEvents}
-                events={events}
-                players={players}
-                backendURL={backendURL}
-                refreshPlayerEvent={getData}
-            />
+            <button onClick={onCreate}>Create Player Event</button>
         </>
     );
 }
