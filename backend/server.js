@@ -222,23 +222,28 @@ app.post('/ticket-holders/create', async function (req, res) {
 app.post('/player-events/create', async function (req, res) {
     try {
         // Parse frontend form information
-        const { eventID, playerID, inningsPlayed, salary } = req.body;
+        const { eventID, playerID, inningsPlayed, salaryPaid } = req.body;
 
+        const clean = v => (Number.isNaN(v) ? null : v);
         // Create and execute our queries
         // Using parameterized queries (Prevents SQL injection attacks)
-        const query1 = `CALL sp_CreatePlayerEvent(?, ?, ?, ?, @new_id);`;
+        const [results] = await db.query(
+            `CALL sp_CreatePlayerEvent(?, ?, ?, ?, @new_id);`,
+            [clean(eventID), clean(playerID), clean(inningsPlayed), clean(salaryPaid)]
+        );
 
         // Store ID of last inserted row
-        const [[[rows]]] = await db.query(query1, [
-            eventID,
-            playerID,
-            inningsPlayed,
-            salary,
-        ]);
+        let newID = null;
 
-        console.log(`CREATE PlayerEvents. ID: ${rows.new_id} ` +
-            `eventID+playerID: ${eventID}${playerID}`
-        );
+        // flatten all resultsets and find the one with new_id
+        for (const set of results) {
+            if (Array.isArray(set) && set[0] && set[0].new_id !== undefined) {
+                newID = set[0].new_id;
+                break;
+            }
+        }
+
+        console.log(`Created PlayerEvent with ID: ${newID}`);
 
         // Send success status to frontend
         res.status(200).json({ message: 'PlayerEvent created successfully' });
@@ -326,12 +331,12 @@ app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
         const eventID = req.params.eventID;
         const playerID = req.params.playerID;
 
-        const { inningsPlayed, salary } = req.body;
+        const { inningsPlayed, salaryPaid } = req.body;
 
         const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?);';
-        const query2 = 'SELECT eventID, playerID, inningsPlayed, salary FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
+        const query2 = 'SELECT eventID, playerID, inningsPlayed, salaryPaid FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
 
-        await db.query(query1, [eventID, playerID, inningsPlayed, salary]);
+        await db.query(query1, [eventID, playerID, inningsPlayed, salaryPaid]);
 
         const [[rows]] = await db.query(query2, [eventID, playerID]);
 

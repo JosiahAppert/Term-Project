@@ -205,11 +205,11 @@ CREATE PROCEDURE sp_CreatePlayerEvent(
     IN e_eventID INT, 
     IN e_playerID INT,
     IN e_inningsPlayed INT,
-    IN e_salary INT,
+    IN e_salaryPaid INT,
     OUT e_newID INT)
 BEGIN
-    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salary) 
-    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salary);
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid) 
+    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salaryPaid);
 
     -- Store the ID of the last inserted row
     SELECT LAST_INSERT_ID() INTO e_newID;

@@ -5,7 +5,7 @@ export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
     const [eventID, setEventID] = useState(playerEventToEdit.eventID);
     const [playerID, setPlayerID] = useState(playerEventToEdit.playerID);
     const [inningsplayed, setInningsPlayed] = useState(playerEventToEdit.inningsplayed);
-    const [salary, setSalary] = useState(playerEventToEdit.salary);
+    const [salaryPaid, setSalaryPaid] = useState(playerEventToEdit.salaryPaid);
 
     const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
                     eventID: playerEventToEdit.eventID,
                     playerID: playerEventToEdit.playerID,
                     inningsplayed,
-                    salary,
+                    salaryPaid,
                 }),
             });
 
@@ -61,11 +61,11 @@ export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
                     value={inningsplayed}
                     onChange={e => setInningsPlayed(e.target.value)}
                 />
-                <label>Salary: </label>
+                <label>salaryPaid: </label>
                 <input
                     type="text"
-                    value={salary}
-                    onChange={e => setSalary(e.target.value)}
+                    value={salaryPaid}
+                    onChange={e => setSalaryPaid(e.target.value)}
                 />
                 <button type="submit">Update</button>
             </form>
