@@ -1,21 +1,108 @@
--- Step 3 – Data Manipulation Queries
--- Variables are denoted with @variableName (@eventID, @fName)
+-- #############################
+-- CREATE Events
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateEvent;
 
-/* =======EVENTS TABLE======= */
+DELIMITER //
+CREATE PROCEDURE sp_CreateEvent(
+    IN e_visitingTeam VARCHAR(50), 
+    IN e_eventStart DATETIME, 
+    OUT e_eventID INT)
+BEGIN
+    INSERT INTO Events (visitingTeam, eventStart) 
+    VALUES (e_visitingTeam, e_eventStart);
 
--- INSERT: Add a new event
-INSERT INTO Events (visitingTeam, eventStart)
-VALUES (@visitingTeam, @eventStart);
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_eventID;
+    -- Display the ID of the last inserted person.
+    SELECT LAST_INSERT_ID() AS 'new_id';
 
--- SELECT: View all events
-SELECT eventID, visitingTeam, eventStart
-FROM Events
-ORDER BY eventStart ASC;
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateEvent('Theresa', 'Evans', 2, 48, @new_id);
+        -- SELECT @new_id AS 'New Person ID';
+END //
+DELIMITER ;
 
--- SELECT BY ID
-SELECT eventID, visitingTeam, eventStart
-FROM Events
-WHERE eventID = @eventID;
+-- #############################
+-- CREATE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreatePlayer(
+    IN e_fName VARCHAR(50), 
+    IN e_lName VARCHAR(50),
+    IN e_position VARCHAR(50),
+    IN e_salary INT,
+    OUT e_playerID INT)
+BEGIN
+    INSERT INTO Players (fName, lName, position, salary) 
+    VALUES (e_fName, e_lName, e_position, e_salary);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() into e_playerID;
+    -- Display the ID of the last inserted person.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateEvent('Theresa', 'Evans', 2, 48, @new_id);
+        -- SELECT @new_id AS 'New Person ID';
+END //
+DELIMITER ;
+
+-- #############################
+-- CREATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicketHolder(
+    IN e_fName VARCHAR(50), 
+    IN e_lName VARCHAR(50),
+    IN e_email VARCHAR(100),
+    IN e_phone VARCHAR(20),
+    OUT e_ticketHolderID INT)
+BEGIN
+    INSERT INTO TicketHolders (fName, lName, email, phone) 
+    VALUES (e_fName, e_lName, e_email, e_phone);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() INTO e_ticketHolderID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateTicketHolder('Theresa', 'Evans', tevans@gmail.com, 5555555555, @new_id);
+        -- SELECT @new_id AS 'New TicketHolder ID';
+END //
+DELIMITER ;
+
+-- #############################
+-- CREATE PlayerEvents
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreatePlayerEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreatePlayerEvent(
+    IN e_eventID INT, 
+    IN e_playerID INT,
+    IN e_inningsPlayed INT,
+    IN e_salaryPaid INT,
+    OUT e_newID INT)
+BEGIN
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid) 
+    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salaryPaid);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() INTO e_newID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreatePlayerEvent(1, 2, 7, 120000, @new_id);
+        -- SELECT @new_id AS 'New PlayerEvent ID';
+END //
+DELIMITER ;
 
 -- #############################
 -- UPDATE Events
@@ -27,6 +114,45 @@ CREATE PROCEDURE sp_UpdateEvent(IN e_eventID INT, IN e_visitingTeam VARCHAR(50),
 
 BEGIN
     UPDATE Events SET visitingTeam = e_visitingTeam, eventStart = e_eventStart WHERE eventID = e_eventID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdatePlayer(IN e_playerID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_position VARCHAR(50), IN e_salary INT)
+
+BEGIN
+    UPDATE Players SET fName = e_fName, lName = e_lName, position = e_position, salary = e_salary WHERE playerID = e_playerID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicketHolder;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateTicketHolder(IN e_ticketHolderID INT, IN e_fName VARCHAR(50), IN e_lName VARCHAR(50), IN e_email VARCHAR(100), IN e_phone VARCHAR(20))
+
+BEGIN
+    UPDATE TicketHolders SET fName = e_fName, lName = e_lName, email = e_email, phone = e_phone WHERE ticketHolderID = e_ticketHolderID; 
+END //
+DELIMITER ;
+
+-- #############################
+-- UPDATE PlayerEvents
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdatePlayerEvent;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salary INT)
+
+BEGIN
+    UPDATE PlayerEvents SET inningsPlayed = e_inningsPlayed, salary = e_salary WHERE eventID = e_eventID AND playerID = e_playerID; 
 END //
 DELIMITER ;
 
@@ -62,128 +188,98 @@ BEGIN
 END //
 DELIMITER ;
 
-/* ===========TICKETHOLDERS TABLE======= */
+-- #############################
+-- DELETE Players
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeletePlayer;
 
--- INSERT: Add a new ticket holder
-INSERT INTO TicketHolders (fName, lName, email, phone)
-VALUES (@fName, @lName, @email, @phone);
+DELIMITER //
+CREATE PROCEDURE sp_DeletePlayer(IN e_playerID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
 
--- SELECT: View all ticket holders
-SELECT ticketHolderID, fName, lName, email, phone
-FROM TicketHolders
-ORDER BY lName, fName;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
---  SELECT BY ID
-SELECT ticketHolderID, fName, lName, email, phone
-FROM TicketHolders
-WHERE ticketHolderID = @ticketHolderID;
+    START TRANSACTION;
+        -- Deleting corresponding row from Players table
+        DELETE FROM Players WHERE playerID = e_playerID;
 
--- UPDATE: Edit ticket holder information
-UPDATE TicketHolders
-SET fName = @fName,
-    lName = @lName,
-    email = @email,
-    phone = @phone
-WHERE ticketHolderID = @ticketHolderID;
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in Players for playerID: ', e_playerID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
 
--- DELETE: Remove a ticket holder
-DELETE FROM TicketHolders
-WHERE ticketHolderID = @ticketHolderID;
+    COMMIT;
 
-/*========PLAYERS TABLE========= */
+END //
+DELIMITER ;
 
--- INSERT: Add a new player
-INSERT INTO Players (fName, lName, position, salary)
-VALUES (@fName, @lName, @position, @salary);
+-- #############################
+-- DELETE TicketHolders
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteTicketHolder;
 
--- SELECT: View all players
-SELECT playerID, fName, lName, position, salary
-FROM Players
-ORDER BY lName, fName;
+DELIMITER //
+CREATE PROCEDURE sp_DeleteTicketHolder(IN e_ticketHolderID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
 
--- SELECT BY ID
-SELECT playerID, fName, lName, position, salary
-FROM Players
-WHERE playerID = @playerID;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
--- UPDATE: Edit player data
-UPDATE Players
-SET fName = @fName,
-    lName = @lName,
-    position = @position,
-    salary = @salary
-WHERE playerID = @playerID;
+    START TRANSACTION;
+        -- Deleting corresponding row from TicketHolders table
+        DELETE FROM TicketHolders WHERE ticketHolderID = e_ticketHolderID;
 
--- DELETE: Remove a player
-DELETE FROM Players
-WHERE playerID = @playerID;
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in TicketHolders for ticketHolderID: ', e_ticketHolderID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
 
-/* ==========TICKETS TABLE========== */
+    COMMIT;
 
--- INSERT: Add a new ticket
-INSERT INTO Tickets (eventID, price, ticketHolderID, seatNumber)
-VALUES (@eventID, @price, @ticketHolderID, @seatNumber);
+END //
+DELIMITER ;
 
---  SELECT: View all tickets with event and holder info
-SELECT T.ticketID,
-    E.visitingTeam,
-    E.eventStart,
-    CONCAT(TH.fName, ' ', TH.lName) AS ticketHolder,
-    T.price,
-    T.seatNumber
-FROM Tickets T
-JOIN Events E ON T.eventID = E.eventID
-LEFT JOIN TicketHolders TH ON T.ticketHolderID = TH.ticketHolderID
-ORDER BY E.eventStart ASC;
+-- #############################
+-- DELETE PlayerEvents
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeletePlayerEvent;
 
--- SELECT BY ID
-SELECT ticketID, eventID, price, ticketHolderID, seatNumber
-FROM Tickets
-WHERE ticketID = @ticketID;
+DELIMITER //
+CREATE PROCEDURE sp_DeletePlayerEvent(IN e_eventID INT, IN e_playerID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
 
--- UPDATE: Modify ticket details
-UPDATE Tickets
-SET eventID = @eventID,
-    price = @price,
-    ticketHolderID = @ticketHolderID,
-    seatNumber = @seatNumber
-WHERE ticketID = @ticketID;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
--- DELETE: Remove a ticket
-DELETE FROM Tickets
-WHERE ticketID = @ticketID;
+    START TRANSACTION;
+        -- Deleting corresponding row from PlayerEvents table
+        DELETE FROM PlayerEvents WHERE eventID = e_eventID AND playerID = e_playerID;
 
-/* ========PLAYEREVENTS TABLE======= */
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in PlayerEvents for eventID: ', e_eventID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
 
--- INSERT: Record a player’s performance in an event
-INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid)
-VALUES (@eventID, @playerID, @inningsPlayed, @salaryPaid);
+    COMMIT;
 
--- SELECT: View all player performances (joined with Events and Players)
-SELECT PE.eventID,
-    E.visitingTeam,
-    E.eventStart,
-    PE.playerID,
-    CONCAT(P.fName, ' ', P.lName) AS playerName,
-    P.position,
-    PE.inningsPlayed,
-    PE.salaryPaid
-FROM PlayerEvents PE
-JOIN Events E ON PE.eventID = E.eventID
-JOIN Players P ON PE.playerID = P.playerID
-ORDER BY E.eventStart ASC;
-
--- SELECT BY EVENT AND PLAYER ID
-SELECT eventID, playerID, inningsPlayed, salaryPaid
-FROM PlayerEvents
-WHERE eventID = @eventID AND playerID = @playerID;
-
--- UPDATE: Edit performance data
-UPDATE PlayerEvents
-SET inningsPlayed = @inningsPlayed,
-    salaryPaid = @salaryPaid
-WHERE eventID = @eventID AND playerID = @playerID;
-
--- DELETE: Remove a performance record
-DELETE FROM PlayerEvents
-WHERE eventID = @eventID AND playerID = @playerID;
+END //
+DELIMITER ;
