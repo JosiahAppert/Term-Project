@@ -283,3 +283,6 @@ BEGIN
 
 END //
 DELIMITER ;
+
+/* Citations */
+-- No citations were used in this file.

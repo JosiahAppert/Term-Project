@@ -115,3 +115,6 @@ DELIMITER ;
 -- Use the following statement to call SP to load the movies database.
 -- This will reset the schema back to the original state.
 -- CALL sp_load_teamdb();
+
+/* Citations */
+-- No citations were used in this file.
