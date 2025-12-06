@@ -1,7 +1,8 @@
 // src/components/Navigation.jsx
 import { Link } from 'react-router-dom';
+import ResetDBForm from './ResetDBForm';
 
-function Navigation() {
+function Navigation({ backendURL }) {
     return (
         <nav>
             <Link to="/">Home</Link>
@@ -10,6 +11,7 @@ function Navigation() {
             <Link to="/player-events">Player Events</Link>
             <Link to="/view-tickets">Tickets</Link>
             <Link to="/ticket-holders">Ticket Holders</Link>
+            <ResetDBForm backendURL={backendURL} />
         </nav>
     );
 }

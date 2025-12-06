@@ -66,10 +66,10 @@ function App() {
       </header>
 
       <div className="main-content">
-        <Navigation />
+        <Navigation backendURL={backendURL} />
         <main>
           <Routes>
-            <Route path="/" element={<HomePage backendURL={backendURL} />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/reset-db" element={<ResetDBForm backendURL={backendURL} />} />
             <Route path="/events" element={<ViewEventsPage backendURL={backendURL} setEventToEdit={setEventToEdit} />} />
             <Route path="/events/create" element={<CreateEventsPage backendURL={backendURL} />} />

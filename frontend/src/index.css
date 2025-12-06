@@ -14,11 +14,12 @@ th, td {
 }
 
 th {
-    background-color: rgb(194, 10, 124);
+    background-color: #0078D4;
+    color: white;
 }
 
 tr:nth-child(even) {
-    background-color: rgb(199, 71, 150);
+    background-color: #F3F2F1;
 }
 
 .cuForm { 
@@ -31,7 +32,7 @@ input, select {
 }
 
 nav {
-    padding: 16px;
+    padding: 8px;
 }
 
 a {
@@ -43,6 +44,6 @@ a {
 }
 
 body {
-    background-color: rgb(199, 38, 137);
-    color: white;
+    background-color: #FFFFFF;
+    color: #323130;
 }
