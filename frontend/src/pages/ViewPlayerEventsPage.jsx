@@ -51,6 +51,8 @@ function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit, setPlayerToEdi
     };
 
     const onEdit = async playerEventToEdit => {
+        setEventToEdit(events);
+        setPlayerToEdit(players);
         setPlayerEventToEdit(playerEventToEdit);
         navigate("/player-events/update");
     };

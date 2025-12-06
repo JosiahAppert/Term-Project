@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
+export const EditPlayerEventsPage = ({ backendURL, events, players, playerEventToEdit }) => {
     const [eventID, setEventID] = useState(playerEventToEdit.eventID);
     const [playerID, setPlayerID] = useState(playerEventToEdit.playerID);
-    const [inningsplayed, setInningsPlayed] = useState(playerEventToEdit.inningsplayed);
+    const [inningsPlayed, setInningsPlayed] = useState(playerEventToEdit.inningsPlayed);
     const [salaryPaid, setSalaryPaid] = useState(playerEventToEdit.salaryPaid);
 
     const navigate = useNavigate();
@@ -20,7 +20,7 @@ export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
                 body: JSON.stringify({
                     eventID: playerEventToEdit.eventID,
                     playerID: playerEventToEdit.playerID,
-                    inningsplayed,
+                    inningsPlayed,
                     salaryPaid,
                 }),
             });
@@ -43,27 +43,29 @@ export const EditPlayerEventsPage = ({ backendURL, playerEventToEdit }) => {
         <div>
             <h2>Edit Player Event</h2>
             <form onSubmit={editPlayerEvent}>
-                <label>Event ID: </label>
-                <input
-                    type="text"
-                    value={eventID}
-                    onChange={e => setEventID(e.target.value)}
-                />
-                <label>Player ID: </label>
-                <input
-                    type="text"
-                    value={playerID}
-                    onChange={e => setPlayerID(e.target.value)}
-                />
+                <label>Event: </label>
+                <select value={eventID} onChange={e => setEventID(Number(e.target.value))}>
+                    <option value="">Select an Event</option>
+                    {events.map((event, index) => (
+                        <option value={event.eventID} key={index}>{event.visitingTeam} {event.eventStart}</option>
+                    ))}
+                </select>
+                <label>Player: </label>
+                <select value={playerID} onChange={e => setPlayerID(Number(e.target.value))}>
+                    <option value="">Select a Player</option>
+                    {players.map((player, index) => (
+                        <option value={player.playerID} key={index}>{player.fName} {player.lName}</option>
+                    ))}
+                </select>
                 <label>Innings Played: </label>
                 <input
-                    type="text"
-                    value={inningsplayed}
+                    type="number"
+                    value={inningsPlayed}
                     onChange={e => setInningsPlayed(e.target.value)}
                 />
-                <label>salaryPaid: </label>
+                <label>Salary Paid: </label>
                 <input
-                    type="text"
+                    type="number"
                     value={salaryPaid}
                     onChange={e => setSalaryPaid(e.target.value)}
                 />

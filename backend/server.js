@@ -328,9 +328,7 @@ app.put('/ticket-holders/update/:id', async function (req, res) {
 
 app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
     try {
-        const eventID = req.params.eventID;
-        const playerID = req.params.playerID;
-
+        const { eventID, playerID } = req.params;
         const { inningsPlayed, salaryPaid } = req.body;
 
         const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?);';

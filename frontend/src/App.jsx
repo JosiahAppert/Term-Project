@@ -79,7 +79,7 @@ function App() {
             <Route path="/players/update" element={<EditPlayersPage backendURL={backendURL} playerToEdit={playerToEdit} />} />
             <Route path="/player-events" element={<ViewPlayerEventsPage backendURL={backendURL} setPlayerEventToEdit={setPlayerEventToEdit} setEventToEdit={setEventToEdit} setPlayerToEdit={setPlayerToEdit} />} />
             <Route path="/player-events/create" element={<CreatePlayerEventsPage backendURL={backendURL} events={eventToEdit} players={playerToEdit}/>} />
-            <Route path="/player-events/update" element={<EditPlayerEventsPage backendURL={backendURL} playerEventToEdit={playerEventToEdit} />} />
+            <Route path="/player-events/update" element={<EditPlayerEventsPage backendURL={backendURL} events={eventToEdit} players={playerToEdit} playerEventToEdit={playerEventToEdit} />} />
             <Route path="/view-tickets" element={<ViewTicketsPage backendURL={backendURL} />} />
             <Route path="/ticket-holders" element={<ViewTicketHoldersPage backendURL={backendURL} setTicketHolderToEdit={setTicketHolderToEdit} />} />
             <Route path="/ticket-holders/create" element={<CreateTicketHoldersPage backendURL={backendURL} />} />

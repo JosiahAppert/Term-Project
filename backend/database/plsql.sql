@@ -267,10 +267,10 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_UpdatePlayerEvent;
 
 DELIMITER //
-CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salary INT)
+CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salaryPaid INT)
 
 BEGIN
-    UPDATE PlayerEvents SET inningsPlayed = e_inningsPlayed, salary = e_salary WHERE eventID = e_eventID AND playerID = e_playerID; 
+    UPDATE PlayerEvents SET eventID = e_eventID, playerID = e_playerID, inningsPlayed = e_inningsPlayed, salaryPaid = e_salaryPaid WHERE eventID = e_eventID AND playerID = e_playerID; 
 END //
 DELIMITER ;
 
