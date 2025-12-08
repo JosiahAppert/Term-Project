@@ -58,7 +58,7 @@ function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit, setPlayerToEdi
     };
 
     const onDelete = async (eventID, playerID) => {
-        const response = await fetch(`${backendURL}/events/${eventID}/${playerID}`, { method: 'DELETE' });
+        const response = await fetch(`${backendURL}/player-events/${eventID}/${playerID}`, { method: 'DELETE' });
         if (response.status === 204) {
             getData();
         } else {
