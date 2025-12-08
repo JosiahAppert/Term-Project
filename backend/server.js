@@ -329,14 +329,14 @@ app.put('/ticket-holders/update/:id', async function (req, res) {
 app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
     try {
         const { eventID, playerID } = req.params;
-        const { inningsPlayed, salaryPaid } = req.body;
+        const { newEventID, newPlayerID, inningsPlayed, salaryPaid } = req.body;
 
-        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?);';
+        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?, ?, ?);';
         const query2 = 'SELECT eventID, playerID, inningsPlayed, salaryPaid FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
 
-        await db.query(query1, [eventID, playerID, inningsPlayed, salaryPaid]);
+        await db.query(query1, [eventID, playerID, newEventID, newPlayerID, inningsPlayed, salaryPaid]);
 
-        const [[rows]] = await db.query(query2, [eventID, playerID]);
+        const [[rows]] = await db.query(query2, [newEventID, newPlayerID]);
 
         console.log(
             `UPDATE PlayerEvents. ID: ${rows.eventID}${rows.playerID}`

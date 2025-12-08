@@ -265,14 +265,44 @@ DELIMITER ;
 -- UPDATE PlayerEvents
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdatePlayerEvent;
-
 DELIMITER //
-CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salaryPaid INT)
 
+CREATE PROCEDURE sp_UpdatePlayerEvent (
+  IN p_eventID INT,
+  IN p_playerID INT,
+  IN p_newEventID INT,
+  IN p_newPlayerID INT,
+  IN p_inningsPlayed INT,
+  IN p_salaryPaid INT
+)
 BEGIN
-    UPDATE PlayerEvents SET eventID = e_eventID, playerID = e_playerID, inningsPlayed = e_inningsPlayed, salaryPaid = e_salaryPaid WHERE eventID = e_eventID AND playerID = e_playerID; 
-END //
+  DECLARE v_innings INT;
+  DECLARE v_salary INT;
+
+  -- Fetch existing data to preserve if NULLs passed
+  SELECT inningsPlayed, salaryPaid
+    INTO v_innings, v_salary
+  FROM PlayerEvents
+  WHERE eventID = p_eventID AND playerID = p_playerID;
+
+  SET v_innings = COALESCE(p_inningsPlayed, v_innings);
+  SET v_salary  = COALESCE(p_salaryPaid, v_salary);
+
+  START TRANSACTION;
+    -- Delete old row
+    DELETE FROM PlayerEvents
+    WHERE eventID = p_eventID AND playerID = p_playerID;
+
+    -- Insert new row with new key and preserved/updated data
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid)
+    VALUES (p_newEventID, p_newPlayerID, v_innings, v_salary);
+  COMMIT;
+
+  SELECT 1 AS rows_affected, 'Updated' AS message;
+END//
+
 DELIMITER ;
+
 
 -- #############################
 -- DELETE Events
