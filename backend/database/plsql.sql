@@ -223,6 +223,33 @@ END //
 DELIMITER ;
 
 -- #############################
+-- CREATE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicket(
+    IN e_eventID INT, 
+    IN e_price INT,
+    IN e_ticketHolderID INT,
+    IN e_seatNumber INT,
+    OUT e_ticketID INT)
+BEGIN
+    INSERT INTO Tickets (eventID, price, ticketHolderID, seatNumber) 
+    VALUES (e_eventID, e_price, e_ticketHolderID, e_seatNumber);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() INTO e_ticketID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'ticket_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateTicket(1, 120.00, 1, 'A12', @new_id);
+        -- SELECT @new_id AS 'New Ticket ID';
+END //
+DELIMITER ;
+
+-- #############################
 -- UPDATE Events
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateEvent;
@@ -303,6 +330,24 @@ END//
 
 DELIMITER ;
 
+-- #############################
+-- UPDATE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicket;
+DELIMITER //
+
+CREATE PROCEDURE sp_UpdateTicket (
+  IN p_ticketID INT,
+  IN p_eventID INT,
+  IN p_price INT,
+  IN p_ticketHolderID INT,
+  IN p_seatNumber INT
+)
+BEGIN
+  UPDATE Tickets SET eventID = p_eventID, price = e_price, ticketHolderID = e_ticketHolderID, seatNumber = e_seatNumber WHERE ticketID = e_ticketID;
+END//
+
+DELIMITER ;
 
 -- #############################
 -- DELETE Events
@@ -423,6 +468,38 @@ BEGIN
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
         IF ROW_COUNT() = 0 THEN
             set error_message = CONCAT('No matching record found in PlayerEvents for eventID: ', e_eventID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;
+
+-- #############################
+-- DELETE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeleteTicket(IN e_ticketID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from Tickets table
+        DELETE FROM Tickets WHERE ticketID = e_ticketID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in Tickets for ticketID: ', e_ticketID);
             -- Trigger custom error, invoke EXIT HANDLER
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
         END IF;

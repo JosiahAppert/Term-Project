@@ -256,6 +256,43 @@ app.post('/player-events/create', async function (req, res) {
     }
 });
 
+app.post('/tickets/create', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const { eventID, price, ticketHolderID, seatNumber } = req.body;
+
+        const clean = v => (Number.isNaN(v) ? null : v);
+        // Create and execute our queries
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const [results] = await db.query(
+            `CALL sp_CreateTicket(?, ?, ?, ?, @new_id);`,
+            [clean(eventID), clean(price), clean(ticketHolderID), clean(seatNumber)]
+        );
+
+        // Store ID of last inserted row
+        let newID = null;
+
+        // flatten all resultsets and find the one with new_id
+        for (const set of results) {
+            if (Array.isArray(set) && set[0] && set[0].new_id !== undefined) {
+                newID = set[0].new_id;
+                break;
+            }
+        }
+
+        console.log(`Created Ticket with ID: ${newID}`);
+
+        // Send success status to frontend
+        res.status(200).json({ message: 'Ticket created successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
 // UPDATE ROUTES
 app.put('/events/update/:id', async function (req, res) {
     try {
@@ -349,6 +386,29 @@ app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
     }
 });
 
+app.put('/tickets/update/:ticketID', async function (req, res) {
+    try {
+        const { ticketID } = req.params;
+        const { eventID, price, ticketHolderID, seatNumber } = req.body;
+
+        const query1 = 'CALL sp_UpdateTicket(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT eventID, price, ticketHolderID, seatNumber FROM Tickets WHERE ticketID = ?;';
+
+        await db.query(query1, [ticketID, eventID, price, ticketHolderID, seatNumber]);
+
+        const [[rows]] = await db.query(query2, [ticketID]);
+
+        console.log(
+            `UPDATE Tickets. ID: ${rows.ticketID}`
+        );
+
+        res.status(200).json({ message: 'Ticket updated successfully' });
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send('An error occurred while executing the database queries.');
+    }
+});
+
 // DELETE ROUTES
 app.delete(`/events/:id`, async function (req, res) {
     try {
@@ -424,6 +484,25 @@ app.delete('/player-events/:eventID/:playerID', async function (req, res) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser
         res.status(500).json({ error: 'Failed to delete player event' });
+    }
+});
+
+app.delete('/tickets/:ticketID', async function (req, res) {
+    try {
+        // Parse frontend form information
+        const ticketID = req.params.ticketID
+
+        // Create and execute our query
+        // Using parameterized queries (Prevents SQL injection attacks)
+        const query1 = `CALL sp_DeleteTicket(?);`;
+        await db.query(query1, [ticketID]);
+
+        console.log(`DELETE Tickets. ID: ${ticketID}`);
+        return res.sendStatus(204);
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).json({ error: 'Failed to delete ticket' });
     }
 });
 

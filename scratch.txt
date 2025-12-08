@@ -143,20 +143,20 @@ app.post('/tickets/create', async function (req, res) {
     }
 });
 
-app.put('/tickets/update/:eventID/:price', async function (req, res) {
+app.put('/tickets/update/:ticketID', async function (req, res) {
     try {
-        const { eventID, price } = req.params;
-        const { newEventID, newprice, ticketHolderID, seatNumber } = req.body;
+        const { ticketID } = req.params;
+        const { eventID, price, ticketHolderID, seatNumber } = req.body;
 
-        const query1 = 'CALL sp_UpdateTicket(?, ?, ?, ?, ?, ?);';
-        const query2 = 'SELECT eventID, price, ticketHolderID, seatNumber FROM Tickets WHERE eventID = ? AND price = ?;';
+        const query1 = 'CALL sp_UpdateTicket(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT eventID, price, ticketHolderID, seatNumber FROM Tickets WHERE ticketID = ?;';
 
-        await db.query(query1, [eventID, price, newEventID, newprice, ticketHolderID, seatNumber]);
+        await db.query(query1, [ticketID, eventID, price, ticketHolderID, seatNumber]);
 
-        const [[rows]] = await db.query(query2, [newEventID, newprice]);
+        const [[rows]] = await db.query(query2, [ticketID]);
 
         console.log(
-            `UPDATE Tickets. ID: ${rows.eventID}${rows.price}`
+            `UPDATE Tickets. ID: ${rows.ticketID}`
         );
 
         res.status(200).json({ message: 'Ticket updated successfully' });
@@ -166,23 +166,22 @@ app.put('/tickets/update/:eventID/:price', async function (req, res) {
     }
 });
 
-app.delete('/tickets/:eventID/:price', async function (req, res) {
+app.delete('/tickets/:ticketID', async function (req, res) {
     try {
         // Parse frontend form information
-        const eventID = req.params.eventID
-        const price = req.params.price
+        const ticketID = req.params.ticketID
 
         // Create and execute our query
         // Using parameterized queries (Prevents SQL injection attacks)
-        const query1 = `CALL sp_DeleteTicket(?, ?);`;
-        await db.query(query1, [eventID, price]);
+        const query1 = `CALL sp_DeleteTicket(?);`;
+        await db.query(query1, [ticketID]);
 
-        console.log(`DELETE Tickets. ID: ${eventID}${price}`);
+        console.log(`DELETE Tickets. ID: ${ticketID}`);
         return res.sendStatus(204);
     } catch (error) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser
-        res.status(500).json({ error: 'Failed to delete player event' });
+        res.status(500).json({ error: 'Failed to delete ticket' });
     }
 });
 
@@ -197,7 +196,7 @@ const TicketRow = ({ ticket, onEdit, onDelete }) => {
             ))}
             <td>
                 <MdEdit onClick={e => {e.preventDefault(); onEdit(ticket);}} id="edit" />
-                <MdDelete onClick={e => {e.preventDefault(); onDelete(ticket.eventID, ticket.price);}} id="delete" />
+                <MdDelete onClick={e => {e.preventDefault(); onDelete(ticket.ticketID);}} id="delete" />
             </td>
         </tr>
     );
@@ -209,39 +208,39 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TicketRow from "../components/TicketRow.jsx";
 
-function ViewTicketsPage({ backendURL, setTicketToEdit, setPlayerToEdit, setEventToEdit }) {
+function ViewTicketsPage({ backendURL, setTicketToEdit, setTicketHolderToEdit, setEventToEdit }) {
     const [events, setEvents] = useState([]);
-    const [players, setPlayers] = useState([]);
+    const [ticketHolders, setTicketHolders] = useState([]);
     const [tickets, setTickets] = useState([]);
 
     const navigate = useNavigate();
 
     const columnAliases = {
+        ticketID: "Ticket ID",
         eventID: "Event ID",
-        price: "Player ID",
+        visitingTeam: "Visiting Team",
+        price: "Price",
         ticketHolderID: "Ticket Holder ID",
-        seatNumber: "Seat Number",
         fName: "First Name",
         lName: "Last Name",
-        teamName: "Team Name",
-        eventStart: "Event Start"
+        seatNumber: "Seat Number"
     };
 
     const getData = async () => {
         try {
-            const [ticketsRes, eventsRes, playersRes] = await Promise.all([
+            const [ticketsRes, eventsRes, ticketHoldersRes] = await Promise.all([
                 fetch(`${backendURL}/tickets`),
                 fetch(`${backendURL}/events`),
-                fetch(`${backendURL}/players`)
+                fetch(`${backendURL}/ticket-holders`)
             ]);
 
             const eventsData = await eventsRes.json();
-            const playersData = await playersRes.json();
+            const ticketHoldersData = await ticketHoldersRes.json();
             const ticketsData = await tickets`Res.json();
 
             setTickets(ticketsData.tickets || ticketsData);
             setEvents(eventsData.events || eventsData);
-            setPlayers(playersData.players || playersData);
+            setTicketHolders(ticketHoldersData.ticketHolders || ticketHoldersData);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -253,29 +252,29 @@ function ViewTicketsPage({ backendURL, setTicketToEdit, setPlayerToEdit, setEven
 
     const onCreate = async () => {
         setEventToEdit(events);
-        setPlayerToEdit(players);
+        setTicketHolderToEdit(ticketHolders);
         navigate("/tickets/create");
     };
 
     const onEdit = async ticketToEdit => {
         setEventToEdit(events);
-        setPlayerToEdit(players);
+        setTicketHolderToEdit(ticketHolders);
         setTicketToEdit(ticketToEdit);
         navigate("/tickets/update");
     };
 
-    const onDelete = async (eventID, price) => {
-        const response = await fetch(`${backendURL}/tickets/${eventID}/${price}`, { method: 'DELETE' });
+    const onDelete = async ticketID => {
+        const response = await fetch(`${backendURL}/tickets/${ticketID}`, { method: 'DELETE' });
         if (response.status === 204) {
             getData();
         } else {
-            console.error(`Failed to delete player event with id = ${eventID}${price}, status code = ${response.status}`)
+            console.error(`Failed to delete ticket with id = ${ticketID}, status code = ${response.status}`)
         }
     }
 
     return (
         <>
-            <h2>List of Player Events</h2>
+            <h2>List of Tickets</h2>
 
             <table>
                 <thead>
@@ -295,7 +294,7 @@ function ViewTicketsPage({ backendURL, setTicketToEdit, setPlayerToEdit, setEven
                     ))}
                 </tbody>
             </table>
-            <button onClick={onCreate}>Create Player Event</button>
+            <button onClick={onCreate}>Create Ticket</button>
         </>
     );
 }
