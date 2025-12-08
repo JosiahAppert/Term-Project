@@ -23,11 +23,11 @@ export const EditTicketsPage = ({ backendURL, events, ticketHolders, ticketToEdi
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    ticketID: Number(ticketID),
+                    ticketID: Number(ticketToEdit.ticketID),
                     eventID: Number(eventID),
                     price: price === "" ? null : Number(price),
                     ticketHolderID: Number(ticketHolderID),
-                    seatNumber: seatNumber === "" ? null : Number(seatNumber),
+                    seatNumber: seatNumber === "" ? null : seatNumber,
                 }),
             });
 
@@ -66,16 +66,15 @@ export const EditTicketsPage = ({ backendURL, events, ticketHolders, ticketToEdi
                 <label>Ticket Holder: </label>
                 <select value={ticketHolderID} onChange={e => setTicketHolderID(Number(e.target.value))}>
                     <option value="">Select a Ticket Holder</option>
-                    {ticketHolders.map((player) => (
-                        <option value={player.playerID} key={player.playerID}>{player.fName} {player.lName}</option>
+                    {ticketHolders.map((ticketHolder) => (
+                        <option value={ticketHolder.ticketHolderID} key={ticketHolder.ticketHolderID}>{ticketHolder.fName} {ticketHolder.lName}</option>
                     ))}
                 </select>
                 <label>Seat Number: </label>
                 <input
-                    type="number"
+                    type="text"
                     value={seatNumber}
                     onChange={e => setSeatNumber(e.target.value)}
-                    min={0}
                 />
                 <button type="submit">Update</button>
             </form>

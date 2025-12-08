@@ -90,7 +90,7 @@ app.get('/player-events', async (req, res) => {
 
 });
 
-app.get('/view-ticket-events', async (req, res) => {
+app.get('/tickets', async (req, res) => {
     try {
         // Create and execute our queries
         const query5 = `SELECT t.ticketID, t.eventID, e.visitingTeam, t.price, t.ticketHolderID, th.fName, th.lName, t.seatNumber
