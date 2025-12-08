@@ -8,16 +8,16 @@ CREATE PROCEDURE sp_CreatePlayerEvent(
     IN e_eventID INT, 
     IN e_playerID INT,
     IN e_inningsPlayed INT,
-    IN e_salary INT,
+    IN e_salaryPaid INT,
     OUT e_newID INT)
 BEGIN
-    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salary) 
-    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salary);
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid) 
+    VALUES (e_eventID, e_playerID, e_inningsPlayed, e_salaryPaid);
 
     -- Store the ID of the last inserted row
-    SELECT CONCAT(e_eventID,e_playerID) INTO e_newID;
+    SELECT LAST_INSERT_ID() INTO e_newID;
     -- Display the ID of the last inserted ticket holder.
-    SELECT CONCAT(e_eventID,e_playerID) AS 'new_id';
+    SELECT LAST_INSERT_ID() AS 'new_id';
 
     -- Example of how to get the ID of the newly created person:
         -- CALL sp_CreatePlayerEvent(1, 2, 7, 120000, @new_id);
@@ -29,13 +29,42 @@ DELIMITER ;
 -- UPDATE PlayerEvents
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdatePlayerEvent;
-
 DELIMITER //
-CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salary INT)
 
+CREATE PROCEDURE sp_UpdatePlayerEvent (
+  IN p_eventID INT,
+  IN p_playerID INT,
+  IN p_newEventID INT,
+  IN p_newPlayerID INT,
+  IN p_inningsPlayed INT,
+  IN p_salaryPaid INT
+)
 BEGIN
-    UPDATE PlayerEvents SET inningsPlayed = e_inningsPlayed, salary = e_salary WHERE eventID = e_eventID AND playerID = e_playerID; 
-END //
+  DECLARE v_innings INT;
+  DECLARE v_salary INT;
+
+  -- Fetch existing data to preserve if NULLs passed
+  SELECT inningsPlayed, salaryPaid
+    INTO v_innings, v_salary
+  FROM PlayerEvents
+  WHERE eventID = p_eventID AND playerID = p_playerID;
+
+  SET v_innings = COALESCE(p_inningsPlayed, v_innings);
+  SET v_salary  = COALESCE(p_salaryPaid, v_salary);
+
+  START TRANSACTION;
+    -- Delete old row
+    DELETE FROM PlayerEvents
+    WHERE eventID = p_eventID AND playerID = p_playerID;
+
+    -- Insert new row with new key and preserved/updated data
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid)
+    VALUES (p_newEventID, p_newPlayerID, v_innings, v_salary);
+  COMMIT;
+
+  SELECT 1 AS rows_affected, 'Updated' AS message;
+END//
+
 DELIMITER ;
 
 -- #############################
@@ -73,23 +102,28 @@ DELIMITER ;
 app.post('/player-events/create', async function (req, res) {
     try {
         // Parse frontend form information
-        const { eventID, playerID, inningsPlayed, salary } = req.body;
+        const { eventID, playerID, inningsPlayed, salaryPaid } = req.body;
 
+        const clean = v => (Number.isNaN(v) ? null : v);
         // Create and execute our queries
         // Using parameterized queries (Prevents SQL injection attacks)
-        const query1 = `CALL sp_CreatePlayerEvent(?, ?, ?, ?, @new_id);`;
+        const [results] = await db.query(
+            `CALL sp_CreatePlayerEvent(?, ?, ?, ?, @new_id);`,
+            [clean(eventID), clean(playerID), clean(inningsPlayed), clean(salaryPaid)]
+        );
 
         // Store ID of last inserted row
-        const [[[rows]]] = await db.query(query1, [
-            eventID,
-            playerID,
-            inningsPlayed,
-            salary,
-        ]);
+        let newID = null;
 
-        console.log(`CREATE PlayerEvents. ID: ${rows.new_id} ` +
-            `eventID+playerID: ${eventID}${playerID}`
-        );
+        // flatten all resultsets and find the one with new_id
+        for (const set of results) {
+            if (Array.isArray(set) && set[0] && set[0].new_id !== undefined) {
+                newID = set[0].new_id;
+                break;
+            }
+        }
+
+        console.log(`Created PlayerEvent with ID: ${newID}`);
 
         // Send success status to frontend
         res.status(200).json({ message: 'PlayerEvent created successfully' });
@@ -104,17 +138,15 @@ app.post('/player-events/create', async function (req, res) {
 
 app.put('/player-events/update/:eventID/:playerID', async function (req, res) {
     try {
-        const eventID = req.params.eventID;
-        const playerID = req.params.playerID
+        const { eventID, playerID } = req.params;
+        const { newEventID, newPlayerID, inningsPlayed, salaryPaid } = req.body;
 
-        const { eventID, playerID, inningsPlayed, salary } = req.body;
+        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?, ?, ?);';
+        const query2 = 'SELECT eventID, playerID, inningsPlayed, salaryPaid FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
 
-        const query1 = 'CALL sp_UpdatePlayerEvent(?, ?, ?, ?);';
-        const query2 = 'SELECT eventID, playerID, inningsPlayed, salary FROM PlayerEvents WHERE eventID = ? AND playerID = ?;';
+        await db.query(query1, [eventID, playerID, newEventID, newPlayerID, inningsPlayed, salaryPaid]);
 
-        await db.query(query1, [eventID, playerID, inningsPlayed, salary]);
-
-        const [[rows]] = await db.query(query2, [eventID, playerID]);
+        const [[rows]] = await db.query(query2, [newEventID, newPlayerID]);
 
         console.log(
             `UPDATE PlayerEvents. ID: ${rows.eventID}${rows.playerID}`
@@ -165,3 +197,100 @@ const PlayerEventRow = ({ playerEvent, onEdit, onDelete }) => {
 };
 
 export default PlayerEventRow;
+
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import PlayerEventRow from "../components/PlayerEventRow.jsx";
+
+function ViewPlayerEventsPage({ backendURL, setPlayerEventToEdit, setPlayerToEdit, setEventToEdit }) {
+    const [events, setEvents] = useState([]);
+    const [players, setPlayers] = useState([]);
+    const [playerEvents, setPlayerEvents] = useState([]);
+
+    const navigate = useNavigate();
+
+    const columnAliases = {
+        eventID: "Event ID",
+        playerID: "Player ID",
+        inningsPlayed: "Innings Played",
+        salaryPaid: "Salary Paid",
+        fName: "First Name",
+        lName: "Last Name",
+        teamName: "Team Name",
+        eventStart: "Event Start"
+    };
+
+    const getData = async () => {
+        try {
+            const [playerEventsRes, eventsRes, playersRes] = await Promise.all([
+                fetch(`${backendURL}/player-events`),
+                fetch(`${backendURL}/events`),
+                fetch(`${backendURL}/players`)
+            ]);
+
+            const eventsData = await eventsRes.json();
+            const playersData = await playersRes.json();
+            const playerEventsData = await playerEventsRes.json();
+
+            setPlayerEvents(playerEventsData.playerEvents || playerEventsData);
+            setEvents(eventsData.events || eventsData);
+            setPlayers(playersData.players || playersData);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const onCreate = async () => {
+        setEventToEdit(events);
+        setPlayerToEdit(players);
+        navigate("/player-events/create");
+    };
+
+    const onEdit = async playerEventToEdit => {
+        setEventToEdit(events);
+        setPlayerToEdit(players);
+        setPlayerEventToEdit(playerEventToEdit);
+        navigate("/player-events/update");
+    };
+
+    const onDelete = async (eventID, playerID) => {
+        const response = await fetch(`${backendURL}/player-events/${eventID}/${playerID}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            getData();
+        } else {
+            console.error(`Failed to delete player event with id = ${eventID}${playerID}, status code = ${response.status}`)
+        }
+    }
+
+    return (
+        <>
+            <h2>List of Player Events</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        {playerEvents.length > 0 && Object.keys(playerEvents[0]).map((header, index) => (
+                            <th key={index}>
+                                {columnAliases[header] || header}
+                            </th>
+                        ))}
+                        <th>Edit/Delete</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {playerEvents.map((playerEvent, index) => (
+                        <PlayerEventRow key={index} playerEvent={playerEvent} onEdit={onEdit} onDelete={onDelete} />
+                    ))}
+                </tbody>
+            </table>
+            <button onClick={onCreate}>Create Player Event</button>
+        </>
+    );
+}
+
+export default ViewPlayerEventsPage;
