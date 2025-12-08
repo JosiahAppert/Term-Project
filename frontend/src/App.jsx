@@ -21,6 +21,8 @@ import CreateTicketHoldersPage from './pages/CreateTicketHoldersPage.jsx';
 import EditTicketHoldersPage from './pages/EditTicketHoldersPage.jsx';
 
 import ViewTicketsPage from './pages/ViewTicketsPage.jsx';
+import CreateTicketsPage from './pages/CreateTicketsPage.jsx';
+import EditTicketsPage from './pages/EditTicketsPage.jsx';
 
 import ResetDBForm from './components/ResetDBForm.jsx';
 
@@ -34,6 +36,7 @@ function App() {
   const [playerToEdit, setPlayerToEdit] = useState([]);
   const [ticketHolderToEdit, setTicketHolderToEdit] = useState([]);
   const [playerEventToEdit, setPlayerEventToEdit] = useState([]);
+  const [ticketToEdit, setTicketToEdit] = useState([]);
 
   // Get the data from the database
   const getData = async () => {
@@ -80,7 +83,9 @@ function App() {
             <Route path="/player-events" element={<ViewPlayerEventsPage backendURL={backendURL} setPlayerEventToEdit={setPlayerEventToEdit} setEventToEdit={setEventToEdit} setPlayerToEdit={setPlayerToEdit} />} />
             <Route path="/player-events/create" element={<CreatePlayerEventsPage backendURL={backendURL} events={eventToEdit} players={playerToEdit}/>} />
             <Route path="/player-events/update" element={<EditPlayerEventsPage backendURL={backendURL} events={eventToEdit} players={playerToEdit} playerEventToEdit={playerEventToEdit} />} />
-            <Route path="/view-tickets" element={<ViewTicketsPage backendURL={backendURL} />} />
+            <Route path="/tickets" element={<ViewTicketsPage backendURL={backendURL} setTicketToEdit={setTicketToEdit} setTicketHolderToEdit={setTicketHolderToEdit} setEventToEdit={setEventToEdit} />} />
+            <Route path="/tickets/create" element={<CreateTicketsPage backendURL={backendURL} events={eventToEdit} ticketHolders={ticketHolderToEdit} />} />
+            <Route path="/tickets/update" element={<EditTicketsPage backendURL={backendURL} events={eventToEdit} ticketHolders={ticketHolderToEdit} ticketToEdit={ticketToEdit} />} />
             <Route path="/ticket-holders" element={<ViewTicketHoldersPage backendURL={backendURL} setTicketHolderToEdit={setTicketHolderToEdit} />} />
             <Route path="/ticket-holders/create" element={<CreateTicketHoldersPage backendURL={backendURL} />} />
             <Route path="/ticket-holders/update" element={<EditTicketHoldersPage backendURL={backendURL} ticketHolderToEdit={ticketHolderToEdit} />} />

@@ -230,9 +230,9 @@ DROP PROCEDURE IF EXISTS sp_CreateTicket;
 DELIMITER //
 CREATE PROCEDURE sp_CreateTicket(
     IN e_eventID INT, 
-    IN e_price INT,
+    IN e_price DECIMAL(8,2),
     IN e_ticketHolderID INT,
-    IN e_seatNumber INT,
+    IN e_seatNumber VARCHAR(5),
     OUT e_ticketID INT)
 BEGIN
     INSERT INTO Tickets (eventID, price, ticketHolderID, seatNumber) 
@@ -339,12 +339,12 @@ DELIMITER //
 CREATE PROCEDURE sp_UpdateTicket (
   IN p_ticketID INT,
   IN p_eventID INT,
-  IN p_price INT,
+  IN p_price DECIMAL(8,2),
   IN p_ticketHolderID INT,
-  IN p_seatNumber INT
+  IN p_seatNumber VARCHAR(5)
 )
 BEGIN
-  UPDATE Tickets SET eventID = p_eventID, price = e_price, ticketHolderID = e_ticketHolderID, seatNumber = e_seatNumber WHERE ticketID = e_ticketID;
+  UPDATE Tickets SET eventID = p_eventID, price = p_price, ticketHolderID = p_ticketHolderID, seatNumber = p_seatNumber WHERE ticketID = p_ticketID;
 END//
 
 DELIMITER ;

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TicketRow from "../components/TicketRow.jsx";
-import CreateTicketForm from "../components/CreateTicketForm.jsx";
-import UpdateTicketForm from "../components/UpdateTicketForm.jsx";
 
-function ViewTicketsPage({ backendURL }) {
-    const [tickets, setTickets] = useState([]);
+function ViewTicketsPage({ backendURL, setTicketToEdit, setTicketHolderToEdit, setEventToEdit }) {
     const [events, setEvents] = useState([]);
     const [ticketHolders, setTicketHolders] = useState([]);
+    const [tickets, setTickets] = useState([]);
+
+    const navigate = useNavigate();
 
     const columnAliases = {
         ticketID: "Ticket ID",
@@ -22,19 +23,18 @@ function ViewTicketsPage({ backendURL }) {
     const getData = async () => {
         try {
             const [ticketsRes, eventsRes, ticketHoldersRes] = await Promise.all([
-                fetch(`${backendURL}/view-ticket-events`),
+                fetch(`${backendURL}/tickets`),
                 fetch(`${backendURL}/events`),
                 fetch(`${backendURL}/ticket-holders`)
             ]);
 
-            const ticketsData = await ticketsRes.json();
             const eventsData = await eventsRes.json();
             const ticketHoldersData = await ticketHoldersRes.json();
+            const ticketsData = await ticketsRes.json();
 
             setTickets(ticketsData.tickets || ticketsData);
             setEvents(eventsData.events || eventsData);
             setTicketHolders(ticketHoldersData.ticketHolders || ticketHoldersData);
-
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -44,6 +44,28 @@ function ViewTicketsPage({ backendURL }) {
         getData();
     }, []);
 
+    const onCreate = async () => {
+        setEventToEdit(events);
+        setTicketHolderToEdit(ticketHolders);
+        navigate("/tickets/create");
+    };
+
+    const onEdit = async ticketToEdit => {
+        setEventToEdit(events);
+        setTicketHolderToEdit(ticketHolders);
+        setTicketToEdit(ticketToEdit);
+        navigate("/tickets/update");
+    };
+
+    const onDelete = async ticketID => {
+        const response = await fetch(`${backendURL}/tickets/${ticketID}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            getData();
+        } else {
+            console.error(`Failed to delete ticket with id = ${ticketID}, status code = ${response.status}`)
+        }
+    }
+
     return (
         <>
             <h2>List of Tickets</h2>
@@ -51,41 +73,22 @@ function ViewTicketsPage({ backendURL }) {
             <table>
                 <thead>
                     <tr>
-                        {tickets.length > 0 &&
-                            Object.keys(tickets[0]).map((header, index) => (
-                                <th key={index}>
-                                    {columnAliases[header] || header}</th>
-                            ))}
-                        <th></th>
+                        {tickets.length > 0 && Object.keys(tickets[0]).map((header, index) => (
+                            <th key={index}>
+                                {columnAliases[header] || header}
+                            </th>
+                        ))}
+                        <th>Edit/Delete</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {tickets.map((ticket, index) => (
-                        <TicketRow
-                            key={index}
-                            rowObject={ticket}
-                            backendURL={backendURL}
-                            refreshTicket={getData}
-                        />
+                        <TicketRow key={index} ticket={ticket} onEdit={onEdit} onDelete={onDelete} />
                     ))}
                 </tbody>
             </table>
-
-            <CreateTicketForm
-                events={events}
-                ticketHolders={ticketHolders}
-                backendURL={backendURL}
-                refreshTicket={getData}
-            />
-
-            <UpdateTicketForm
-                tickets={tickets}
-                events={events}
-                ticketHolders={ticketHolders}
-                backendURL={backendURL}
-                refreshTicket={getData}
-            />
+            <button onClick={onCreate}>Create Ticket</button>
         </>
     );
 }

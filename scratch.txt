@@ -236,7 +236,7 @@ function ViewTicketsPage({ backendURL, setTicketToEdit, setTicketHolderToEdit, s
 
             const eventsData = await eventsRes.json();
             const ticketHoldersData = await ticketHoldersRes.json();
-            const ticketsData = await tickets`Res.json();
+            const ticketsData = await ticketsRes.json();
 
             setTickets(ticketsData.tickets || ticketsData);
             setEvents(eventsData.events || eventsData);

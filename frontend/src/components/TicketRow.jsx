@@ -1,13 +1,16 @@
-import DeleteTicketForm from "./DeleteTicketForm";
+import '../App.css';
+import { MdEdit, MdDelete } from "react-icons/md";
 
-const TicketRow = ({ rowObject, backendURL, refreshTicket }) => {
+const TicketRow = ({ ticket, onEdit, onDelete }) => {
     return (
         <tr>
-            {Object.values(rowObject).map((value, index) => (
+            {Object.values(ticket).map((value, index) => (
                 <td key={index}>{value}</td>
             ))}
-            
-            <DeleteTicketForm rowObject={rowObject} backendURL={backendURL} refreshTicket={refreshTicket} />
+            <td>
+                <MdEdit onClick={e => {e.preventDefault(); onEdit(ticket);}} id="edit" />
+                <MdDelete onClick={e => {e.preventDefault(); onDelete(ticket.ticketID);}} id="delete" />
+            </td>
         </tr>
     );
 };
