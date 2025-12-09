@@ -1,3 +1,19 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 50pt;
+  margin: 0px;
+}
+
 #edit, #delete:hover {
     cursor: pointer;
 }
