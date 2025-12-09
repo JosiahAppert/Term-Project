@@ -1,12 +1,14 @@
-// ########################################
+// ####################################################################################
 // backend/server.js
 // Citations for the following code:
 //    Adapted from the following sources:
 //    1. Exploration - Web Application Technology
-//         https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2?module_item_id=25645131
-
-
-// ########################################
+//       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-
+//          application-technology-2?module_item_id=25645131
+//    2. Exploration - Implementing CUD operations in your app
+//       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-implementing-
+//          cud-operations-in-your-app?module_item_id=25645149
+// ####################################################################################
 // ########## SETUP
 // Database
 const db = require('./database/db-connector');
