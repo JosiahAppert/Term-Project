@@ -1,3 +1,15 @@
+-- -------------------------------------------------------
+-- DDL.sql
+-- Citations for the following code:
+--    Adapted from the following sources:
+--    1. Exploration - MySQL Cascade
+--       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-mysql-cascade
+--    2. Bulk Data Loading for InnoDB Tables
+--       https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-bulk-data-loading.html
+--    3. Exploration - Creating ER Diagram MySQL Workbench
+--       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-creating-er-diagram-mysql-workbench
+
+
 DROP PROCEDURE IF EXISTS sp_load_teamdb;
 DELIMITER //
 CREATE PROCEDURE sp_load_teamdb()

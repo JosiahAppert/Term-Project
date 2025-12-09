@@ -1,5 +1,11 @@
-// reactServer.cjs
-// Uses common JavaScript to serve the React build folder (/dist)
+// ###############################################################################
+// frontend/reactServer.cjs
+// Citations for the following code:
+//   Adapted from the following sources:
+//   1. Exploration - Web Application Technology
+//        https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-
+//           application-technology-2?module_item_id=25645131
+// ###############################################################################
 
 const express = require('express');
 const path = require('path');

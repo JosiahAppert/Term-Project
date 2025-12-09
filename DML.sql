@@ -1,3 +1,11 @@
+-- -------------------------------------------------------------
+-- DML.sql
+-- Citations for the following code:
+--    Adapted from the following sources:
+--    1. Exploration - Database Application Design
+--        https://canvas.oregonstate.edu/courses/2017561/pages/exploration-database-application-design?module_item_id=25645129
+
+
 -- #############################
 -- CREATE Events
 -- #############################
@@ -105,6 +113,33 @@ END //
 DELIMITER ;
 
 -- #############################
+-- CREATE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicket(
+    IN e_eventID INT, 
+    IN e_price DECIMAL(8,2),
+    IN e_ticketHolderID INT,
+    IN e_seatNumber VARCHAR(5),
+    OUT e_ticketID INT)
+BEGIN
+    INSERT INTO Tickets (eventID, price, ticketHolderID, seatNumber) 
+    VALUES (e_eventID, e_price, e_ticketHolderID, e_seatNumber);
+
+    -- Store the ID of the last inserted row
+    SELECT LAST_INSERT_ID() INTO e_ticketID;
+    -- Display the ID of the last inserted ticket holder.
+    SELECT LAST_INSERT_ID() AS 'ticket_id';
+
+    -- Example of how to get the ID of the newly created person:
+        -- CALL sp_CreateTicket(1, 120.00, 1, 'A12', @new_id);
+        -- SELECT @new_id AS 'New Ticket ID';
+END //
+DELIMITER ;
+
+-- #############################
 -- UPDATE Events
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateEvent;
@@ -147,13 +182,61 @@ DELIMITER ;
 -- UPDATE PlayerEvents
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdatePlayerEvent;
-
 DELIMITER //
-CREATE PROCEDURE sp_UpdatePlayerEvent(IN e_eventID INT, IN e_playerID INT, IN e_inningsPlayed INT, IN e_salary INT)
 
+CREATE PROCEDURE sp_UpdatePlayerEvent (
+  IN p_eventID INT,
+  IN p_playerID INT,
+  IN p_newEventID INT,
+  IN p_newPlayerID INT,
+  IN p_inningsPlayed INT,
+  IN p_salaryPaid INT
+)
 BEGIN
-    UPDATE PlayerEvents SET inningsPlayed = e_inningsPlayed, salary = e_salary WHERE eventID = e_eventID AND playerID = e_playerID; 
-END //
+  DECLARE v_innings INT;
+  DECLARE v_salary INT;
+
+  -- Fetch existing data to preserve if NULLs passed
+  SELECT inningsPlayed, salaryPaid
+    INTO v_innings, v_salary
+  FROM PlayerEvents
+  WHERE eventID = p_eventID AND playerID = p_playerID;
+
+  SET v_innings = COALESCE(p_inningsPlayed, v_innings);
+  SET v_salary  = COALESCE(p_salaryPaid, v_salary);
+
+  START TRANSACTION;
+    -- Delete old row
+    DELETE FROM PlayerEvents
+    WHERE eventID = p_eventID AND playerID = p_playerID;
+
+    -- Insert new row with new key and preserved/updated data
+    INSERT INTO PlayerEvents (eventID, playerID, inningsPlayed, salaryPaid)
+    VALUES (p_newEventID, p_newPlayerID, v_innings, v_salary);
+  COMMIT;
+
+  SELECT 1 AS rows_affected, 'Updated' AS message;
+END//
+
+DELIMITER ;
+
+-- #############################
+-- UPDATE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicket;
+DELIMITER //
+
+CREATE PROCEDURE sp_UpdateTicket (
+  IN p_ticketID INT,
+  IN p_eventID INT,
+  IN p_price DECIMAL(8,2),
+  IN p_ticketHolderID INT,
+  IN p_seatNumber VARCHAR(5)
+)
+BEGIN
+  UPDATE Tickets SET eventID = p_eventID, price = p_price, ticketHolderID = p_ticketHolderID, seatNumber = p_seatNumber WHERE ticketID = p_ticketID;
+END//
+
 DELIMITER ;
 
 -- #############################
@@ -284,5 +367,34 @@ BEGIN
 END //
 DELIMITER ;
 
-/* Citations */
--- No citations were used in this file.
+-- #############################
+-- DELETE Tickets
+-- #############################
+DROP PROCEDURE IF EXISTS sp_DeleteTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_DeleteTicket(IN e_ticketID INT)
+BEGIN
+    DECLARE error_message VARCHAR(255); 
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+        -- Deleting corresponding row from Tickets table
+        DELETE FROM Tickets WHERE ticketID = e_ticketID;
+
+        -- ROW_COUNT() returns the number of rows affected by the preceding statement.
+        IF ROW_COUNT() = 0 THEN
+            set error_message = CONCAT('No matching record found in Tickets for ticketID: ', e_ticketID);
+            -- Trigger custom error, invoke EXIT HANDLER
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+DELIMITER ;

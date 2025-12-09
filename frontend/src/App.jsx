@@ -1,3 +1,12 @@
+// ###############################################################################
+// frontend/src/App.jsx
+// Citations for the following code:
+//   Adapted from the following sources:
+//   1. Exploration - Web Application Technology
+//        https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-
+//           application-technology-2?module_item_id=25645131
+// ###############################################################################
+
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
