@@ -3,12 +3,15 @@
 -- Citations for the following code:
 --    Adapted from the following sources:
 --    1. Exploration - MySQL Cascade
+--       Date: October 30, 2025
 --       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-mysql-
 --          cascade
 --    2. Bulk Data Loading for InnoDB Tables
+--       Date: October 30, 2025
 --       https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-bulk-data-
 --          loading.html
 --    3. Exploration - Creating ER Diagram MySQL Workbench
+--       Date: October 10, 2025
 --       https://canvas.oregonstate.edu/courses/2017561/pages/exploration-creating-
 --          er-diagram-mysql-workbench
 -- ------------------------------------------------------------------------------------

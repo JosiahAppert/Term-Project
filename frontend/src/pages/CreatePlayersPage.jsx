@@ -3,9 +3,11 @@
 // Citations for the following code:
 //   Adapted from the following sources:
 //   1. Exploration - Web Application Technology
+//      Date: November 3, 2025
 //      https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-
 //         application-technology-2?module_item_id=25645131
 //   2. Exploration - Implementing CUD operations in your app
+//      Date: November 19, 2025
 //      https://canvas.oregonstate.edu/courses/2017561/pages/exploration-implementing-
 //         cud-operations-in-your-app?module_item_id=25645149
 // ####################################################################################
